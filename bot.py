@@ -25,10 +25,11 @@ class UpgradeView(discord.ui.View):
     @discord.ui.button(label="Upgrade Bake Speed", style=discord.ButtonStyle.green)
     async def upgrade_bake_speed_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
-        if data['balance'] >= (bake_speed_upgrades.index(data['bake_speed']) + 1) * 5:
+        upgrade_price = await calculate_next_upgrade(data, 'bake_speed')
+        if data['balance'] >= upgrade_price:
             try:
                 new_bake_speed = bake_speed_upgrades[bake_speed_upgrades.index(data['bake_speed']) + 1]
-                data['balance'] -= (bake_speed_upgrades.index(data['bake_speed']) + 1) * 5
+                data['balance'] -= upgrade_price
                 data['bake_speed'] = new_bake_speed
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id)
@@ -46,14 +47,16 @@ class UpgradeView(discord.ui.View):
     @discord.ui.button(label="Upgrade Cookie Count", style=discord.ButtonStyle.green)
     async def upgrade_cookie_count_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
-        if data['balance'] >= (cookie_limit_upgrades.index(data['cookie_limit']) + 1) * 5:
+        upgrade_price = await calculate_next_upgrade(data, 'cookie_limit')
+        if data['balance'] >= upgrade_price:
             try:
                 new_cookie_limit = cookie_limit_upgrades[cookie_limit_upgrades.index(data['cookie_limit']) + 1]
-                data['balance'] -= (cookie_limit_upgrades.index(data['cookie_limit']) + 1) * 5
+                data['balance'] -= upgrade_price
                 data['cookie_limit'] = new_cookie_limit
                 await update_data(data)
-                await interaction.response.send_message(
-                    f'Your cookie limit has been upgraded to {data["cookie_limit"]}')
+                embed = await make_shop_embed(interaction.user.id)
+                embed.add_field(name=f'Your cookie limit has been upgraded to {data["cookie_limit"]}', value="", inline=False)
+                await interaction.response.edit_message(embed=embed, view=UpgradeView())
             except IndexError:
                 embed = await make_shop_embed(interaction.user.id)
                 embed.add_field(name="You've reached the maximum cookie limit.", value="", inline=False)
@@ -105,14 +108,25 @@ async def make_shop_embed(user_id):
     cookie_limit = data['cookie_limit']
     next_bake_upgrade = bake_speed_upgrades[bake_speed_upgrades.index(bake_speed) + 1]
     next_cookie_upgrade = cookie_limit_upgrades[cookie_limit_upgrades.index(cookie_limit) + 1]
+    bake_upgrade_price = await calculate_next_upgrade(data, 'bake_speed')
+    cookie_upgrade_price = await calculate_next_upgrade(data, 'cookie_limit')
 
     embed = discord.Embed(title="Shop", color=0x6b4f37)
     embed.add_field(name="Bake Speed Upgrade",
-                    value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade} seconds\nCost: {(bake_speed_upgrades.index(bake_speed) + 1) * 5} cookies",
+                    value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade} seconds\nCost: {bake_upgrade_price} cookies",
                     inline=True)
-    embed.add_field(name="Cookie Upgrade", value=f"Current: {cookie_limit}\nNext: {next_cookie_upgrade}\nCost: {(cookie_limit_upgrades.index(cookie_limit) + 1) * 5} cookies", inline=True)
+    embed.add_field(name="Cookie Upgrade", value=f"Current: {cookie_limit}\nNext: {next_cookie_upgrade}\nCost: {cookie_upgrade_price} cookies", inline=True)
     embed.add_field(name="Current Balance", value=f"{balance} cookies", inline=False)
     return embed
+
+async def calculate_next_upgrade(data, upgrade_type):
+    if upgrade_type == 'bake_speed':
+        next_upgrade = int(2 ** (bake_speed_upgrades.index(data['bake_speed']) + 1))
+    elif upgrade_type == 'cookie_limit':
+        next_upgrade = int(2 ** (cookie_limit_upgrades.index(data['cookie_limit']) + 1))
+    else:
+        return 0
+    return next_upgrade
 
 @bot.event
 async def on_ready():
