@@ -5,7 +5,6 @@ import aiosqlite
 import asyncio
 from datetime import datetime
 
-
 # Create a single persistent database connection
 async def get_db_connection():
     # Only open the connection once and reuse it for the entire bot lifecycle
@@ -19,7 +18,53 @@ load_dotenv()
 token = os.getenv('TOKEN')
 
 baking_users = {}
-# Retrieve data or create a new entry if not found
+bake_speed_upgrades = [60, 55, 50, 45, 40, 30, 20, 10, 5, 2, 1]
+cookie_limit_upgrades = [1, 2, 3, 5, 8, 12, 16, 24, 32, 40, 50]
+
+class UpgradeView(discord.ui.View):
+    @discord.ui.button(label="Upgrade Bake Speed", style=discord.ButtonStyle.green)
+    async def upgrade_bake_speed_callback(self, button, interaction):
+        data = await get_data(interaction.user.id)
+        if data['balance'] >= (bake_speed_upgrades.index(data['bake_speed']) + 1) * 5:
+            try:
+                new_bake_speed = bake_speed_upgrades[bake_speed_upgrades.index(data['bake_speed']) + 1]
+                data['balance'] -= (bake_speed_upgrades.index(data['bake_speed']) + 1) * 5
+                data['bake_speed'] = new_bake_speed
+                await update_data(data)
+                embed = await make_shop_embed(interaction.user.id)
+                embed.add_field(name=f'Your bake speed has been upgraded to {data["bake_speed"]}', value="", inline=False)
+                await interaction.response.edit_message(embed=embed, view=UpgradeView())
+            except IndexError:
+                embed = await make_shop_embed(interaction.user.id)
+                embed.add_field(name="You've reached the maximum bake speed.", value="", inline=False)
+                await interaction.response.edit_message(embed=embed, view=UpgradeView())
+        else:
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You don't have enough cookies to upgrade your bake speed.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView())
+
+    @discord.ui.button(label="Upgrade Cookie Count", style=discord.ButtonStyle.green)
+    async def upgrade_cookie_count_callback(self, button, interaction):
+        data = await get_data(interaction.user.id)
+        if data['balance'] >= (cookie_limit_upgrades.index(data['cookie_limit']) + 1) * 5:
+            try:
+                new_cookie_limit = cookie_limit_upgrades[cookie_limit_upgrades.index(data['cookie_limit']) + 1]
+                data['balance'] -= (cookie_limit_upgrades.index(data['cookie_limit']) + 1) * 5
+                data['cookie_limit'] = new_cookie_limit
+                await update_data(data)
+                await interaction.response.send_message(
+                    f'Your cookie limit has been upgraded to {data["cookie_limit"]}')
+            except IndexError:
+                embed = await make_shop_embed(interaction.user.id)
+                embed.add_field(name="You've reached the maximum cookie limit.", value="", inline=False)
+                await interaction.response.edit_message(embed=embed, view=UpgradeView())
+        else:
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You don't have enough cookies to upgrade your cookie limit.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView())
+        
+
+
 async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
@@ -42,7 +87,6 @@ async def get_data(user_id):
         'bake_speed': row[3]
     }
 
-# Update user data in the database
 async def update_data(data):
     user_id = data.pop('user_id', None)
     set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
@@ -54,7 +98,22 @@ async def update_data(data):
     await cursor.execute(f"UPDATE users SET {set_clause} WHERE user_id = ?", values)
     await conn.commit()
 
-# Initialize database schema if not exists
+async def make_shop_embed(user_id):
+    data = await get_data(user_id)
+    balance = data['balance']
+    bake_speed = data['bake_speed']
+    cookie_limit = data['cookie_limit']
+    next_bake_upgrade = bake_speed_upgrades[bake_speed_upgrades.index(bake_speed) + 1]
+    next_cookie_upgrade = cookie_limit_upgrades[cookie_limit_upgrades.index(cookie_limit) + 1]
+
+    embed = discord.Embed(title="Shop", color=0x6b4f37)
+    embed.add_field(name="Bake Speed Upgrade",
+                    value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade} seconds\nCost: {(bake_speed_upgrades.index(bake_speed) + 1) * 5} cookies",
+                    inline=True)
+    embed.add_field(name="Cookie Upgrade", value=f"Current: {cookie_limit}\nNext: {next_cookie_upgrade}\nCost: {(cookie_limit_upgrades.index(cookie_limit) + 1) * 5} cookies", inline=True)
+    embed.add_field(name="Current Balance", value=f"{balance} cookies", inline=False)
+    return embed
+
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
@@ -73,19 +132,16 @@ async def on_ready():
     except Exception as e:
         print(f"Error creating table: {e}")
 
-# Basic ping command
 @bot.command()
 async def ping(ctx):
     await ctx.respond(f'Pong! {round(bot.latency * 1000)}ms')
 
-# Show user balance
 @bot.command()
 async def balance(ctx):
     data = await get_data(ctx.author.id)
     balance = data['balance']
     await ctx.respond(f'Your balance is {balance}')
 
-# Change user balance
 @bot.command()
 async def change_balance(ctx, amount: int):
     data = await get_data(ctx.author.id)
@@ -106,14 +162,14 @@ async def bake(ctx):
         return
 
     current_time = datetime.now().timestamp()
-    new_time = f'<t:{int(current_time + bake_speed + 1)}:R>'
+    new_time = f'<t:{int(current_time + bake_speed)}:R>'
 
         # Start baking process
     baking_users[user_id] = True  # Mark the user as baking
     bake_message = await ctx.respond(f'You started baking {cookie_limit} cookies. It will be done {new_time}')
 
     # Wait for bake_speed seconds
-    await asyncio.sleep(bake_speed)
+    await asyncio.sleep(bake_speed - 1)
 
     # After baking, add cookies to balance
     data['balance'] += cookie_limit
@@ -123,5 +179,9 @@ async def bake(ctx):
     del baking_users[user_id]  # Mark the user as not baking anymore
     await bake_message.edit(content=f'You baked {cookie_limit} cookies! Your new balance is {data["balance"]}.')
 
+@bot.command()
+async def shop(ctx):
+    embed = await make_shop_embed(ctx.author.id)
+    await ctx.respond(embed=embed, view=UpgradeView())
 
 bot.run(token)
