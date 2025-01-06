@@ -1,3 +1,5 @@
+import math
+
 import discord
 import os
 from dotenv import load_dotenv
@@ -106,8 +108,8 @@ class UpgradeView(discord.ui.View):
         balance = data['balance']
         ping = data['ping']
         if ping == 0:
-            if balance >= 100:
-                data['balance'] -= 100
+            if balance >= 10:
+                data['balance'] -= 10
                 data['ping'] = 2
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id)
@@ -163,13 +165,13 @@ class GambleConfirmationView(discord.ui.View):
 async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
-    await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily FROM users WHERE user_id = ?", (user_id,))
+    await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp FROM users WHERE user_id = ?", (user_id,))
     row = await cursor.fetchone()
     if row is None:
-        await cursor.execute("INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-                             (user_id, 0, 1, 60, False, 0, 1, 0))
+        await cursor.execute("INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                             (user_id, 0, 1, 60, False, 0, 1, 0, 0))
         await conn.commit()
-        await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily FROM users WHERE user_id = ?",
+        await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp FROM users WHERE user_id = ?",
                              (user_id,))
         row = await cursor.fetchone()
 
@@ -181,7 +183,8 @@ async def get_data(user_id):
         'ping': row[4],
         'last_active': row[5],
         'idle_upgrade_level': row[6],
-        'last_daily': row[7]
+        'last_daily': row[7],
+        'xp': row[8]
     }
 
     if data['last_active'] == 0:
@@ -248,7 +251,7 @@ async def make_shop_embed(user_id):
     if not ping == 0:
         embed.add_field(name="Ping When Done Baking", value=f"Owned")
     else:
-        embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 100 cookies", inline=True)
+        embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 10 cookies", inline=True)
     embed.add_field(name="Current Balance", value=f"{balance} cookies", inline=False)
     return embed
 
@@ -281,6 +284,24 @@ async def update_idle_balance(data):
     data['last_active'] = datetime.now().timestamp()
     await update_data(data)
 
+async def calculate_level(xp):
+    return int(math.sqrt(xp)*0.5)
+
+async def get_xp_bar_data(xp):
+    level = await calculate_level(xp)
+    current_level_xp = (level * 2) ** 2
+    next_level_xp = ((level + 1) * 2) ** 2
+    progress = (xp - current_level_xp) / (next_level_xp - current_level_xp) * 100
+    bar = []
+    for i in range(1,10):
+        if i * 10 <= round(progress / 10) * 10:
+            bar.append("⬜")
+        else:
+            bar.append("⬛")
+    bar.append(f" ({progress:.0f}%)")
+    bar = "".join(bar)
+    return [current_level_xp, next_level_xp, progress, bar]
+
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
@@ -296,7 +317,8 @@ async def on_ready():
             ping INTEGER DEFAULT 0,
             last_active INTEGER DEFAULT 0,
             idle_upgrade_level INTEGER DEFAULT 1,
-            last_daily INTEGER DEFAULT 0
+            last_daily INTEGER DEFAULT 0,
+            xp INTEGER DEFAULT 0
         )
         """)
         await conn.commit()
@@ -306,6 +328,13 @@ async def on_ready():
 @bot.command()
 async def ping(ctx):
     await ctx.respond(f'Pong! {round(bot.latency * 1000)}ms')
+
+@bot.command()
+async def add_xp(ctx, amount):
+    data = await get_data(ctx.author.id)
+    data['xp'] += int(amount)
+    await update_data(data)
+    await ctx.respond(f'added {amount} xp')
 
 @bot.command()
 async def balance(ctx):
@@ -340,9 +369,12 @@ async def bake(ctx):
     await asyncio.sleep(bake_speed - 1)
     data = await get_data(user_id)
     data['balance'] += oven_cap
+    data['xp'] += oven_cap * 2
     await update_data(data)
     del baking_users[user_id]
     await bake_message.edit(content=f'You baked {oven_cap} cookies! Your new balance is {data["balance"]}.')
+
+    await update_data(data)
 
     ping = data['ping']
     if ping == 2:
@@ -364,7 +396,10 @@ async def profile(ctx, user: discord.User = None):
     oven_cap = data['oven_cap']
     idle_upgrade_level = data['idle_upgrade_level']
     idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) -1, 1)
+    bar_data = await get_xp_bar_data(data['xp'])
     embed = discord.Embed(color=0x6b4f37)
+    embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3], inline=False)
+    embed.add_field(name=f"{bar_data[1] - bar_data[0]} xp to level {await calculate_level(data['xp']) + 1}", value="", inline=False)
     embed.add_field(name="Balance", value=f"{balance} cookies", inline=True)
     embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
     embed.add_field(name="Cookie Limit", value=f"{oven_cap} cookies", inline=True)
@@ -372,6 +407,7 @@ async def profile(ctx, user: discord.User = None):
     # embed.set_thumbnail(url=user.avatar.url)
     embed.set_author(name=f"{user.name}'s profile", icon_url=user.avatar.url)
     await ctx.respond(embed=embed)
+
 
 @bot.command()
 async def leaderboard(ctx):
@@ -435,7 +471,8 @@ async def reset_database(ctx):
                 ping INTEGER DEFAULT 0,
                 last_active INTEGER DEFAULT 0,
                 idle_upgrade_level INTEGER DEFAULT 1,
-                last_daily INTEGER DEFAULT 0
+                last_daily INTEGER DEFAULT 0,
+                xp INTEGER DEFAULT 0
             )
             """)
         await conn.commit()
