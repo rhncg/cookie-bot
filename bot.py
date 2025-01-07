@@ -1,7 +1,7 @@
 import math
-
 import discord
 import os
+from attr import dataclass
 from dotenv import load_dotenv
 import aiosqlite
 import asyncio
@@ -17,6 +17,8 @@ bot = discord.Bot()
 
 load_dotenv()
 token = os.getenv('TOKEN')
+
+admins = [1066616669843243048]
 
 baking_users = {}
 bake_speed_upgrades = [60, 55, 50, 45, 40, 30, 20, 10]
@@ -37,7 +39,7 @@ class UpgradeView(discord.ui.View):
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         # Check if the user interacting matches the intended user
         if interaction.user.id != self.user_id:
-            await interaction.response.send_message("You cannot use this person's shop. Please use /shop and use the one provided.", ephemeral=True)
+            await interaction.response.send_message("You cannot use this person's shop. Please use </shop:1310001981066313738> and use the one provided.", ephemeral=True)
             return False
         return True
 
@@ -63,7 +65,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade your bake speed.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
 
-    @discord.ui.button(label="Upgrade Cookie Count", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Upgrade Oven Capacity", style=discord.ButtonStyle.green)
     async def upgrade_cookie_count_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         upgrade_price = await calculate_next_upgrade(data, 'oven_cap')
@@ -78,7 +80,7 @@ class UpgradeView(discord.ui.View):
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
             except IndexError:
                 embed = await make_shop_embed(interaction.user.id)
-                embed.add_field(name="You've reached the maximum oven_capacity.", value="", inline=False)
+                embed.add_field(name="You've reached the maximum oven capacity.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
         else:
             embed = await make_shop_embed(interaction.user.id)
@@ -165,13 +167,13 @@ class GambleConfirmationView(discord.ui.View):
 async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
-    await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp FROM users WHERE user_id = ?", (user_id,))
+    await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal FROM users WHERE user_id = ?", (user_id,))
     row = await cursor.fetchone()
     if row is None:
-        await cursor.execute("INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                             (user_id, 0, 1, 60, False, 0, 1, 0, 0))
+        await cursor.execute("INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                             (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0))
         await conn.commit()
-        await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp FROM users WHERE user_id = ?",
+        await cursor.execute("SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal FROM users WHERE user_id = ?",
                              (user_id,))
         row = await cursor.fetchone()
 
@@ -184,7 +186,8 @@ async def get_data(user_id):
         'last_active': row[5],
         'idle_upgrade_level': row[6],
         'last_daily': row[7],
-        'xp': row[8]
+        'xp': row[8],
+        'last_steal': row[9]
     }
 
     if data['last_active'] == 0:
@@ -240,7 +243,8 @@ async def make_shop_embed(user_id):
     view = UpgradeView(user_id, data['ping'])
     user = await bot.fetch_user(user_id)
 
-    embed = discord.Embed(title=f"{user.name}'s Shop", color=0x6b4f37)
+    embed = discord.Embed(color=0x6b4f37)
+    embed.set_author(name=f"{user.name}'s shop", icon_url=user.avatar.url)
     embed.add_field(name="Bake Speed Upgrade",
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",
                     inline=True)
@@ -318,7 +322,8 @@ async def on_ready():
             last_active INTEGER DEFAULT 0,
             idle_upgrade_level INTEGER DEFAULT 1,
             last_daily INTEGER DEFAULT 0,
-            xp INTEGER DEFAULT 0
+            xp INTEGER DEFAULT 0,
+            last_steal INTEGER DEFAULT 0
         )
         """)
         await conn.commit()
@@ -329,12 +334,14 @@ async def on_ready():
 async def ping(ctx):
     await ctx.respond(f'Pong! {round(bot.latency * 1000)}ms')
 
+'''
 @bot.command()
 async def add_xp(ctx, amount):
     data = await get_data(ctx.author.id)
     data['xp'] += int(amount)
     await update_data(data)
     await ctx.respond(f'added {amount} xp')
+'''
 
 @bot.command()
 async def balance(ctx):
@@ -357,7 +364,7 @@ async def bake(ctx):
     oven_cap = data['oven_cap']
 
     if user_id in baking_users:
-        await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.')
+        await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.', ephemeral=True)
         return
 
     current_time = datetime.now().timestamp()
@@ -390,24 +397,25 @@ async def shop(ctx):
 async def profile(ctx, user: discord.User = None):
     if user is None:
         user = ctx.author
-    data = await get_data(user.id)
-    balance = data['balance']
-    bake_speed = data['bake_speed']
-    oven_cap = data['oven_cap']
-    idle_upgrade_level = data['idle_upgrade_level']
-    idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) -1, 1)
-    bar_data = await get_xp_bar_data(data['xp'])
-    embed = discord.Embed(color=0x6b4f37)
-    embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3], inline=False)
-    embed.add_field(name=f"{bar_data[1] - bar_data[0]} xp to level {await calculate_level(data['xp']) + 1}", value="", inline=False)
-    embed.add_field(name="Balance", value=f"{balance} cookies", inline=True)
-    embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
-    embed.add_field(name="Cookie Limit", value=f"{oven_cap} cookies", inline=True)
-    embed.add_field(name="Idle Rate", value=f"{idle_upgrade} cookies per minute", inline=True)
-    # embed.set_thumbnail(url=user.avatar.url)
-    embed.set_author(name=f"{user.name}'s profile", icon_url=user.avatar.url)
-    await ctx.respond(embed=embed)
-
+    try:
+        data = await get_data(user.id)
+        balance = data['balance']
+        bake_speed = data['bake_speed']
+        oven_cap = data['oven_cap']
+        idle_upgrade_level = data['idle_upgrade_level']
+        idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) -1, 1)
+        bar_data = await get_xp_bar_data(data['xp'])
+        embed = discord.Embed(color=0x6b4f37)
+        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3], inline=False)
+        embed.add_field(name=f"{bar_data[1] - bar_data[0]} xp to level {await calculate_level(data['xp']) + 1}", value="", inline=False)
+        embed.add_field(name="Balance", value=f"{balance} cookies", inline=True)
+        embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
+        embed.add_field(name="Cookie Limit", value=f"{oven_cap} cookies", inline=True)
+        embed.add_field(name="Idle Rate", value=f"{idle_upgrade} cookies per minute", inline=True)
+        embed.set_author(name=f"{user.name}'s profile", icon_url=user.avatar.url)
+        await ctx.respond(embed=embed)
+    except Exception as e:
+        await ctx.respond("That isn't a valid user.", ephemeral=True)
 
 @bot.command()
 async def leaderboard(ctx):
@@ -452,33 +460,69 @@ async def daily(ctx):
         await ctx.respond(f"You have claimed your daily reward of {reward} cookies. You now have {data['balance']} cookies.")
 
 @bot.command()
+async def steal(ctx, user: discord.User):
+    if user.id == ctx.author.id:
+        await ctx.respond("You cannot steal from yourself.", ephemeral=True)
+        return
+    data = await get_data(user.id)
+    balance = data['balance']
+
+    user_data = await get_data(ctx.author.id)
+    last_steal = user_data['last_steal']
+    if datetime.now().timestamp() - last_steal < 1800:
+        await ctx.respond(f"You have already attempted to steal from someone recently.\nYou can steal again <t:{int(last_steal + 1800)}:R>.")
+        return
+
+    if balance == 0:
+        await ctx.respond("That user has no cookies to steal.", ephemeral=True)
+        return
+    amount = random.randint(1, int(balance * 0.25))
+    chance = random.randint(1, 3)
+    if chance == 1:
+        data['balance'] -= amount
+        user_data['balance'] += amount
+        await ctx.respond(f"You stole {amount} cookies from <@{user.id}>.")
+    else:
+        await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
+
+    user_data['last_steal'] = datetime.now().timestamp()
+
+    await update_data(data)
+    await update_data(user_data)
+
+
+@bot.command()
 async def reset_database(ctx):
-    try:
-        conn = await get_db_connection()
-        cursor = await conn.cursor()
+    if ctx.author.id in admins:
+        try:
+            conn = await get_db_connection()
+            cursor = await conn.cursor()
 
-        # Drop the existing table
-        await cursor.execute("DROP TABLE IF EXISTS users")
-        await conn.commit()
+            # Drop the existing table
+            await cursor.execute("DROP TABLE IF EXISTS users")
+            await conn.commit()
 
-        # Recreate the table
-        await cursor.execute("""
-            CREATE TABLE users (
-                user_id INTEGER PRIMARY KEY,
-                balance INTEGER DEFAULT 0,
-                oven_cap INTEGER DEFAULT 1,
-                bake_speed INTEGER DEFAULT 60,
-                ping INTEGER DEFAULT 0,
-                last_active INTEGER DEFAULT 0,
-                idle_upgrade_level INTEGER DEFAULT 1,
-                last_daily INTEGER DEFAULT 0,
-                xp INTEGER DEFAULT 0
-            )
-            """)
-        await conn.commit()
+            # Recreate the table
+            await cursor.execute("""
+                CREATE TABLE users (
+                    user_id INTEGER PRIMARY KEY,
+                    balance INTEGER DEFAULT 0,
+                    oven_cap INTEGER DEFAULT 1,
+                    bake_speed INTEGER DEFAULT 60,
+                    ping INTEGER DEFAULT 0,
+                    last_active INTEGER DEFAULT 0,
+                    idle_upgrade_level INTEGER DEFAULT 1,
+                    last_daily INTEGER DEFAULT 0,
+                    xp INTEGER DEFAULT 0,
+                    last_steal INTEGER DEFAULT 0
+                )
+                """)
+            await conn.commit()
 
-        await ctx.respond("database has been reset")
-    except Exception as e:
-        await ctx.respond(f"An error occurred while resetting the database: {e}")
+            await ctx.respond("database has been reset")
+        except Exception as e:
+            await ctx.respond(f"An error occurred while resetting the database: {e}")
+    else:
+        await ctx.respond("You do not have permission to use this command.", ephemeral=True)
 
 bot.run(token)
