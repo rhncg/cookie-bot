@@ -19,7 +19,6 @@ load_dotenv()
 token = os.getenv('TOKEN')
 
 admins = [1066616669843243048]
-
 baking_users = {}
 bake_speed_upgrades = [60, 55, 50, 45, 40, 30, 20, 10]
 oven_cap_upgrades = [1, 2, 3, 5, 8, 12, 16, 24, 32, 40, 50]
