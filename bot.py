@@ -238,6 +238,8 @@ async def get_data(user_id):
     else:
         data['last_active'] = datetime.now().timestamp()
 
+    data['interactions'] += 1
+
     return data
 
 
@@ -628,6 +630,5 @@ async def reset_database(ctx):
             await ctx.respond(f"An error occurred while resetting the database: {e}")
     else:
         await ctx.respond("You do not have permission to use this command.", ephemeral=True)
-
 
 bot.run(token)
