@@ -25,8 +25,6 @@ token = 'MTMwOTc4MjYwNjc1NzM2NzgxOQ.GrFizw.PC0ydT9fa96MsYNDFVXNbWPCYgcmkEKhqKtKV
 admins = [1066616669843243048]
 baking_users = {}
 bake_speed_upgrades = [60, 55, 50, 45, 40, 30, 20, 10]
-oven_cap_upgrades = [1, 2, 3, 5, 8, 12, 16, 24, 32, 40, 50]
-
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping):
@@ -199,16 +197,16 @@ async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
     await cursor.execute(
-        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak FROM users WHERE user_id = ?",
+        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions FROM users WHERE user_id = ?",
         (user_id,))
     row = await cursor.fetchone()
     if row is None:
         await cursor.execute(
-            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0))
+            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0))
         await conn.commit()
         await cursor.execute(
-            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak FROM users WHERE user_id = ?",
+            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions FROM users WHERE user_id = ?",
             (user_id,))
         row = await cursor.fetchone()
 
@@ -224,7 +222,8 @@ async def get_data(user_id):
         'xp': row[8],
         'last_steal': row[9],
         'last_gamble': row[10],
-        'daily_streak': row[11]
+        'daily_streak': row[11],
+        'interactions': row[12]
     }
 
     if data['last_active'] == 0:
@@ -238,6 +237,8 @@ async def get_data(user_id):
         await update_data(data)
     else:
         data['last_active'] = datetime.now().timestamp()
+
+    data['interactions'] += 1
 
     return data
 
@@ -390,7 +391,8 @@ async def on_ready():
             xp INTEGER DEFAULT 0,
             last_steal INTEGER DEFAULT 0,
             last_gamble INTEGER DEFAULT 0,
-            daily_streak INTEGER DEFAULT 0
+            daily_streak INTEGER DEFAULT 0,
+            interactions INTEGER DEFAULT 0
         )
         """)
         await conn.commit()
@@ -617,7 +619,8 @@ async def reset_database(ctx):
                     xp INTEGER DEFAULT 0,
                     last_steal INTEGER DEFAULT 0,
                     last_gamble INTEGER DEFAULT 0,
-                    daily_streak INTEGER DEFAULT 0
+                    daily_streak INTEGER DEFAULT 0,
+                    interactions INTEGER DEFAULT 0
                 )
                 """)
             await conn.commit()
@@ -627,6 +630,5 @@ async def reset_database(ctx):
             await ctx.respond(f"An error occurred while resetting the database: {e}")
     else:
         await ctx.respond("You do not have permission to use this command.", ephemeral=True)
-
 
 bot.run(token)
