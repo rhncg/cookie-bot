@@ -19,7 +19,7 @@ bot = discord.Bot()
 # load_dotenv()
 # token = os.getenv('TOKEN')
 
-token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GJ1W6e.Y3GekmmRBoYrzRU5NRrHXfMrmp6_jIUapqcHWU'
+token = 'MTMwOTc4MjYwNjc1NzM2NzgxOQ.GrFizw.PC0ydT9fa96MsYNDFVXNbWPCYgcmkEKhqKtKVI'
 
 admins = [1066616669843243048]
 baking_users = {}
@@ -204,7 +204,7 @@ class GambleConfirmationView(discord.ui.View):
         data['balance'] += gamble_result
         data['last_gamble'] = datetime.now().timestamp()
         await update_data(data)
-        del gamble_users[self.user_id]
+        gamble_users.remove(interaction.user.id)
         if gamble_result > 0:
             await interaction.response.edit_message(
                 content=f"You gambled {self.amount} cookies and won {gamble_result} cookies! Your new balance is {data['balance']}.",
@@ -224,8 +224,7 @@ class GambleConfirmationView(discord.ui.View):
             await interaction.response.send_message("You cannot cancel this person's gamble.", ephemeral=True)
             return
         await interaction.response.edit_message(content="Gamble canceled.", embed=None, view=None)
-        del gamble_users[self.user_id]
-
+        gamble_users.remove(interaction.user.id)
 
 async def get_data(user_id):
     conn = await get_db_connection()
@@ -335,7 +334,7 @@ async def make_shop_embed(user_id):
     user = await bot.fetch_user(user_id)
 
     embed = discord.Embed(color=0x6b4f37)
-    embed.set_author(name=f"{user.name}'s shop")
+    embed.set_author(name=f"{user.name}'s shop", icon_url=user.display_avatar.url)
     embed.add_field(name="Bake Speed Upgrade",
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",
                     inline=True)
@@ -387,20 +386,20 @@ async def update_idle_balance(data):
 
 
 async def calculate_level(xp):
-    return int(math.sqrt(xp) * 0.5)
+    return int(math.sqrt(xp) * 0.2)
 
 
 async def get_xp_bar_data(xp):
     level = await calculate_level(xp)
-    current_level_xp = (level * 2) ** 2
-    next_level_xp = ((level + 1) * 2) ** 2
+    current_level_xp = (level * 5) ** 2
+    next_level_xp = ((level + 1) * 5) ** 2
     progress = (xp - current_level_xp) / (next_level_xp - current_level_xp) * 100
     bar = []
     for i in range(1, 11):
         if i * 10 <= round(progress / 10) * 10:
-            bar.append("â¬")
+            bar.append("⬜")
         else:
-            bar.append("â¬")
+            bar.append("⬛")
     bar.append(f" ({progress:.0f}%)")
     bar = "".join(bar)
     return [current_level_xp, next_level_xp, progress, bar]
@@ -489,7 +488,7 @@ async def bake(ctx):
     await asyncio.sleep(bake_speed - 1)
     data = await get_data(user_id)
     data['balance'] += oven_cap
-    data['xp'] += oven_cap * 2
+    data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
     await bake_message.edit(content=f'You baked {oven_cap} cookies! Your new balance is {data["balance"]}.')
@@ -523,13 +522,13 @@ async def profile(ctx, user: discord.User = None):
         embed = discord.Embed(color=0x6b4f37)
         embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3],
                         inline=False)
-        embed.add_field(name=f"{bar_data[1] - bar_data[0]} xp to level {await calculate_level(data['xp']) + 1}",
+        embed.add_field(name=f"{bar_data[1] - data['xp']} xp to level {await calculate_level(data['xp']) + 1}",
                         value="", inline=False)
         embed.add_field(name="Balance", value=f"{balance} cookies", inline=True)
         embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
-        embed.add_field(name="Cookie Limit", value=f"{oven_cap} cookies", inline=True)
+        embed.add_field(name="Oven Capacity", value=f"{oven_cap} cookies", inline=True)
         embed.add_field(name="Idle Rate", value=f"{idle_upgrade} cookies per minute", inline=True)
-        embed.set_author(name=f"{user.name}'s profile")
+        embed.set_author(name=f"{user.name}'s profile", icon_url=user.display_avatar.url)
         await ctx.respond(embed=embed)
     except Exception as e:
         await ctx.respond(f"That isn't a valid user. {e}", ephemeral=True)
@@ -557,7 +556,7 @@ async def gamble(ctx, amount: int):
     balance = data['balance']
     if datetime.now().timestamp() - last_gamble < 120:
         await ctx.respond(
-            f"You have already gambled recently.\nYou can gamble again <t:{int(last_gamble + 600)}:R>.", ephemeral=True)
+            f"You have already gambled recently.\nYou can gamble again <t:{int(last_gamble + 120)}:R>.", ephemeral=True)
         return
     if balance < amount:
         await ctx.respond("You don't have enough cookies to gamble.")
@@ -566,8 +565,11 @@ async def gamble(ctx, amount: int):
         await ctx.respond("You must gamble a positive amount of cookies.")
         return
 
+    if ctx.author.id in gamble_users:
+        await ctx.respond(f"You already have a confirmation window open.", ephemeral=True)
+        return
     gamble_users.append(ctx.author.id)
-
+    
     embed = discord.Embed(title=f"Are you sure you want to gamble {amount} cookies?", color=0x6b4f37)
     embed.add_field(name=f"You can either win or lose up to {amount} cookies.", value="", inline=False)
     embed.add_field(name="This action cannot be undone.", value="", inline=False)
@@ -579,7 +581,7 @@ async def daily(ctx):
     data = await get_data(ctx.author.id)
     if datetime.now().timestamp() - data['last_daily'] < 57600:
         await ctx.respond(
-            f"You have already claimed your daily reward.\nYou can claim your next daily reward <t:{int(data['last_daily'] + 57600)}:R>.")
+            f"You have already claimed your daily reward.\nYou can claim your next daily reward <t:{int(data['last_daily'] + 57600)}:R>.", ephemeral=True)
     else:
         reward = int(0.02 * (1 + data['daily_streak']/10) * data['balance'])
         if reward < 5:
