@@ -14,17 +14,49 @@ async def get_db_connection():
         bot.db_conn = await aiosqlite.connect("data.db")
     return bot.db_conn
 
-
 bot = discord.Bot()
 
 # load_dotenv()
 # token = os.getenv('TOKEN')
 
-token = 'MTMwOTc4MjYwNjc1NzM2NzgxOQ.GrFizw.PC0ydT9fa96MsYNDFVXNbWPCYgcmkEKhqKtKVI'
+token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GJ1W6e.Y3GekmmRBoYrzRU5NRrHXfMrmp6_jIUapqcHWU'
 
 admins = [1066616669843243048]
 baking_users = {}
 bake_speed_upgrades = [60, 55, 50, 45, 40, 30, 20, 10]
+
+class LeaderboardView(discord.ui.View):
+    def __init__(self, ctx):
+        super().__init__()
+        self.ctx = ctx  # Save the context to fetch data later
+        self.sort_by_level = False  # Track sorting state
+
+    @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green)
+    async def sort_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        self.sort_by_level = not self.sort_by_level  # Toggle state
+        button.label = "Sort by Cookies" if self.sort_by_level else "Sort by Level"
+
+        # Fetch new data based on sorting
+        conn = await get_db_connection()
+        cursor = await conn.cursor()
+        sort = "xp" if self.sort_by_level else "balance"
+        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC")
+        rows = await cursor.fetchall()
+
+        # Update the embed with new leaderboard data
+        embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
+        for i, row in enumerate(rows):
+            if row[1] == 0:
+                continue
+            if self.sort_by_level:
+                label = f"Level {await calculate_level(row[1])} - {row[1]} xp"
+                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+            else:
+                label = f"{row[1]} cookies"
+                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+
+        # Update the interaction message with the new data and view
+        await interaction.response.edit_message(embed=embed, view=self)
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping):
@@ -172,6 +204,7 @@ class GambleConfirmationView(discord.ui.View):
         data['balance'] += gamble_result
         data['last_gamble'] = datetime.now().timestamp()
         await update_data(data)
+        del gamble_users[self.user_id]
         if gamble_result > 0:
             await interaction.response.edit_message(
                 content=f"You gambled {self.amount} cookies and won {gamble_result} cookies! Your new balance is {data['balance']}.",
@@ -191,6 +224,7 @@ class GambleConfirmationView(discord.ui.View):
             await interaction.response.send_message("You cannot cancel this person's gamble.", ephemeral=True)
             return
         await interaction.response.edit_message(content="Gamble canceled.", embed=None, view=None)
+        del gamble_users[self.user_id]
 
 
 async def get_data(user_id):
@@ -364,9 +398,9 @@ async def get_xp_bar_data(xp):
     bar = []
     for i in range(1, 11):
         if i * 10 <= round(progress / 10) * 10:
-            bar.append("⬜")
+            bar.append("â¬")
         else:
-            bar.append("⬛")
+            bar.append("â¬")
     bar.append(f" ({progress:.0f}%)")
     bar = "".join(bar)
     return [current_level_xp, next_level_xp, progress, bar]
@@ -422,14 +456,14 @@ async def balance(ctx):
     await ctx.respond(f'Your balance is {balance}')
 
 
-
+'''
 @bot.command()
 async def change_balance(ctx, amount: int):
     data = await get_data(ctx.author.id)
     data['balance'] += amount
     await update_data(data)
     await ctx.respond(f'Your balance has been updated to {data["balance"]}')
-
+'''
 
 
 @bot.command()
@@ -498,7 +532,7 @@ async def profile(ctx, user: discord.User = None):
         embed.set_author(name=f"{user.name}'s profile")
         await ctx.respond(embed=embed)
     except Exception as e:
-        await ctx.respond("That isn't a valid user.", ephemeral=True)
+        await ctx.respond(f"That isn't a valid user. {e}", ephemeral=True)
 
 
 @bot.command()
@@ -512,15 +546,16 @@ async def leaderboard(ctx):
         if row[1] == 0:
             continue
         embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {row[1]} cookies", inline=False)
-    await ctx.respond(embed=embed)
+    await ctx.respond(embed=embed, view=LeaderboardView(ctx))
 
+gamble_users = []
 
 @bot.command()
 async def gamble(ctx, amount: int):
     data = await get_data(ctx.author.id)
     last_gamble = data['last_gamble']
     balance = data['balance']
-    if datetime.now().timestamp() - last_gamble < 600:
+    if datetime.now().timestamp() - last_gamble < 120:
         await ctx.respond(
             f"You have already gambled recently.\nYou can gamble again <t:{int(last_gamble + 600)}:R>.", ephemeral=True)
         return
@@ -530,6 +565,8 @@ async def gamble(ctx, amount: int):
     if not amount > 0:
         await ctx.respond("You must gamble a positive amount of cookies.")
         return
+
+    gamble_users.append(ctx.author.id)
 
     embed = discord.Embed(title=f"Are you sure you want to gamble {amount} cookies?", color=0x6b4f37)
     embed.add_field(name=f"You can either win or lose up to {amount} cookies.", value="", inline=False)
@@ -550,6 +587,8 @@ async def daily(ctx):
         last_daily = data['last_daily']
         if datetime.now().timestamp() - last_daily < 144000:
             data['daily_streak'] += 1
+        else:
+            data['daily_streak'] = 0
 
         data['balance'] += reward
         data['last_daily'] = datetime.now().timestamp()
@@ -593,7 +632,7 @@ async def steal(ctx, user: discord.User):
     await update_data(data)
     await update_data(user_data)
 
-
+'''
 @bot.command()
 async def reset_database(ctx):
     if ctx.author.id in admins:
@@ -630,5 +669,5 @@ async def reset_database(ctx):
             await ctx.respond(f"An error occurred while resetting the database: {e}")
     else:
         await ctx.respond("You do not have permission to use this command.", ephemeral=True)
-
+'''
 bot.run(token)
