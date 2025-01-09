@@ -596,7 +596,6 @@ async def daily(ctx):
         await ctx.respond(
             f"You have claimed your daily reward of {reward} cookies. You now have {data['balance']} cookies.")
 
-
 @bot.command()
 async def steal(ctx, user: discord.User):
     if user.id == ctx.author.id:
