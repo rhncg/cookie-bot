@@ -9,9 +9,6 @@ from datetime import datetime
 import random
 from numerize.numerize import numerize
 
-from sqlalchemy.orm.sync import update
-
-
 async def get_db_connection():
     if not hasattr(bot, 'db_conn'):
         bot.db_conn = await aiosqlite.connect("data.db")
@@ -317,7 +314,7 @@ async def make_shop_embed(user_id):
     ping = data['ping']
     idle_upgrade_level = data['idle_upgrade_level']
 
-    bake_upgrade_price = numerize(calculate_next_upgrade_price(data, 'bake_speed'), 3)
+    bake_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'bake_speed'), 3)
     oven_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'oven_cap'), 3)
     idle_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'idle_upgrade'), 3)
 
@@ -326,7 +323,7 @@ async def make_shop_embed(user_id):
         next_bake_upgrade = f"{next_bake_upgrade} seconds"
     except IndexError:
         next_bake_upgrade = "Max Level Reached"
-        bake_upgrade_price = "Max Level Reached"
+        bake_upgrade_price = 0
 
     try:
         next_cookie_upgrade = numerize(await calculate_next_upgrade(data, 'oven_cap'), 3)
@@ -466,7 +463,7 @@ async def add_xp(ctx, amount):
 async def balance(ctx):
     data = await get_data(ctx.author.id)
     balance = data['balance']
-    await ctx.respond(f'Your balance is {balance}')
+    await ctx.respond(f'You have {balance} cookies.')
 
 
 '''
@@ -647,23 +644,23 @@ async def steal(ctx, user: discord.User):
     await update_data(user_data)
 
 @bot.command()
-async def show_cooldowns(ctx):
+async def cooldowns(ctx):
     data = await get_data(ctx.author.id)
-    embed = discord.Embed(title="Cooldown", color=0x6b4f37)
+    embed = discord.Embed(title="Cooldowns", color=0x6b4f37)
     if datetime.now().timestamp() - data['last_daily'] < 57600:
-        embed.add_field(name="Daily", value=f"Your daily reward will be available <t:{int(data['last_daily']) + 57600}:R>")
+        embed.add_field(name="Daily", value=f"Your daily reward will be available <t:{int(data['last_daily']) + 57600}:R>", inline=False)
     else:
-        embed.add_field(name="Daily", value="Your daily reward is available.")
+        embed.add_field(name="Daily", value="Your daily reward is available.", inline=False)
 
     if datetime.now().timestamp() - data['last_steal'] < 1800:
-        embed.add_field(name="Steal", value=f"Your steal will be available <t:{int(data['last_steal']) + 1800}:R>")
+        embed.add_field(name="Steal", value=f"Your steal will be available <t:{int(data['last_steal']) + 1800}:R>", inline=False)
     else:
-        embed.add_field(name="Steal", value="Your steal is available.")
+        embed.add_field(name="Steal", value="Your steal is available.", inline=False)
 
     if datetime.now().timestamp() - data['last_gamble'] < 120:
-        embed.add_field(name="Gamble", value=f"Your gamble will be available <t:{int(data['last_gamble']) + 120}:R>")
+        embed.add_field(name="Gamble", value=f"Your gamble will be available <t:{int(data['last_gamble']) + 120}:R>", inline=False)
     else:
-        embed.add_field(name="Gamble", value="Your gamble is available.")
+        embed.add_field(name="Gamble", value="Your gamble is available.", inline=False)
 
     await ctx.respond(embed=embed)
 
