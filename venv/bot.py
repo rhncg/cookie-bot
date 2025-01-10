@@ -19,7 +19,7 @@ bot = discord.Bot()
 # load_dotenv()
 # token = os.getenv('TOKEN')
 
-token = 'MTMwOTc4MjYwNjc1NzM2NzgxOQ.GrFizw.PC0ydT9fa96MsYNDFVXNbWPCYgcmkEKhqKtKVI'
+token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GFUdlV.BZZ2GLTQSlUMXfJwiGL9x7zhINitdbNBIxtIRE'
 
 admins = [1066616669843243048]
 baking_users = {}
@@ -91,7 +91,7 @@ class UpgradeView(discord.ui.View):
                 data['xp'] += 5
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id)
-                embed.add_field(name=f'Your bake speed has been upgraded to {data["bake_speed"]} seconds', value="",
+                embed.add_field(name=f'Your bake speed has been upgraded to {data["bake_speed"]} seconds (+5 xp)', value="",
                                 inline=False)
                 await interaction.response.edit_message(embed=embed,
                                                         view=UpgradeView(interaction.user.id, data['ping']))
@@ -117,7 +117,7 @@ class UpgradeView(discord.ui.View):
                 data['xp'] += 5
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id)
-                embed.add_field(name=f'Your oven capacity has been upgraded to {data["oven_cap"]} cookies', value="",
+                embed.add_field(name=f'Your oven capacity has been upgraded to {data["oven_cap"]} cookies (+5 xp)', value="",
                                 inline=False)
                 await interaction.response.edit_message(embed=embed,
                                                         view=UpgradeView(interaction.user.id, data['ping']))
@@ -142,7 +142,7 @@ class UpgradeView(discord.ui.View):
             data['xp'] += 5
             await update_data(data)
             embed = await make_shop_embed(interaction.user.id)
-            embed.add_field(name=f'Your idle upgrade has been upgraded to level {data["idle_upgrade_level"]}.',
+            embed.add_field(name=f'Your idle upgrade has been upgraded to level {data["idle_upgrade_level"]} (+5 xp)',
                             value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
         else:
@@ -162,7 +162,7 @@ class UpgradeView(discord.ui.View):
                 data['xp'] += 5
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id)
-                embed.add_field(name="You've bought the ping upgrade!", value="", inline=False)
+                embed.add_field(name="You've bought the ping upgrade! (+5 xp)", value="", inline=False)
                 await interaction.response.edit_message(embed=embed,
                                                         view=UpgradeView(interaction.user.id, data['ping']))
             else:
@@ -414,7 +414,6 @@ async def get_xp_bar_data(xp):
     bar = "".join(bar)
     return [current_level_xp, next_level_xp, progress, bar]
 
-
 @bot.event
 async def on_ready():
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
@@ -473,6 +472,7 @@ async def change_balance(ctx, amount: int):
     await update_balance(data, amount)
     await update_data(data)
     await ctx.respond(f'Your balance has been updated to {data["balance"]}')
+    print(amount, ctx.author.id)
 '''
 
 
@@ -502,7 +502,7 @@ async def bake(ctx):
     data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
-    await bake_message.edit(content=f'You baked {oven_cap} cookies! Your new balance is {data["balance"]}.')
+    await bake_message.edit(content=f'You baked {oven_cap} cookies! Your new balance is {data["balance"]}. (+{round(oven_cap * 0.5)} xp)')
 
     ping = data['ping']
     if ping == 2:
@@ -538,6 +538,7 @@ async def profile(ctx, user: discord.User = None):
         embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
         embed.add_field(name="Oven Capacity", value=f"{oven_cap} cookies", inline=True)
         embed.add_field(name="Idle Rate", value=f"{idle_upgrade} cookies per minute", inline=True)
+        embed.add_field(name="Total Cookies Baked", value=data['total_cookies'], inline=True)
         embed.set_author(name=f"{user.name}'s profile", icon_url=user.display_avatar.url)
         await ctx.respond(embed=embed)
     except Exception as e:
@@ -546,6 +547,7 @@ async def profile(ctx, user: discord.User = None):
 
 @bot.command()
 async def leaderboard(ctx):
+    await ctx.defer()
     conn = await get_db_connection()
     cursor = await conn.cursor()
     await cursor.execute("SELECT user_id, balance FROM users ORDER BY balance DESC")
@@ -579,7 +581,7 @@ async def gamble(ctx, amount: int):
         await ctx.respond(f"You already have a confirmation window open.", ephemeral=True)
         return
     gamble_users.append(ctx.author.id)
-    
+
     embed = discord.Embed(title=f"Are you sure you want to gamble {amount} cookies?", color=0x6b4f37)
     embed.add_field(name=f"You can either win or lose up to {amount} cookies.", value="", inline=False)
     embed.add_field(name="This action cannot be undone.", value="", inline=False)
@@ -664,6 +666,43 @@ async def cooldowns(ctx):
 
     await ctx.respond(embed=embed)
 
+
+@bot.command()
+async def debug(ctx, user: discord.User = None):
+    if user is None:
+        user = ctx.author
+    data = await get_data(user.id)
+    if ctx.author.id in admins:
+        embed = discord.Embed(title="Debug", color=0x6b4f37)
+        embed.add_field(name="Ping", value=f"{round(bot.latency * 1000)}ms", inline=False)
+        embed.add_field(name="Baking Users", value=f"{baking_users}", inline=False)
+        embed.add_field(name="User Data", value=f"ID: {user.id}\n"
+                                                f"Balance: {data['balance']}\n"
+                                                f"Oven Cap: {data['oven_cap']}\n"
+                                                f"Bake Speed: {data['bake_speed']}\n"
+                                                f"Ping: {data['ping']}\n"
+                                                f"Last Active: {data['last_active']}\n"
+                                                f"Idle Upgrade Level: {data['idle_upgrade_level']}\n"
+                                                f"Last Daily: {data['last_daily']}\n"
+                                                f"XP: {data['xp']}\n"
+                                                f"Last Steal: {data['last_steal']}\n"
+                                                f"Last Gamble: {data['last_gamble']}\n"
+                                                f"Daily Streak: {data['daily_streak']}\n"
+                                                f"Interactions: {data['interactions']}\n"
+                                                f"Total Cookies: {data['total_cookies']}", inline=False)
+        embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
+        await ctx.respond(embed=embed)
+    else:
+        await ctx.respond("Only admins can use this command.", ephemeral=True)
+
+@bot.command(description="Send a suggestion to rohan.")
+async def suggest(ctx, suggestion: str):
+    await ctx.defer(ephemeral=True)
+    for users in admins:
+        user = await bot.fetch_user(users)
+        await user.send(f"{ctx.author.name} has suggested: {suggestion}")
+    await ctx.respond("Your suggestion has been sent to rohan.", ephemeral=True)
+
 '''
 @bot.command()
 async def reset_database(ctx):
@@ -703,4 +742,5 @@ async def reset_database(ctx):
     else:
         await ctx.respond("You do not have permission to use this command.", ephemeral=True)
 '''
+
 bot.run(token)
