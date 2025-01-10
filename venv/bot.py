@@ -346,7 +346,7 @@ async def make_shop_embed(user_id):
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",
                     inline=True)
     embed.add_field(name="Oven Capacity Upgrade",
-                    value=f"Current: {oven_cap} cookies\nNext: {next_cookie_upgrade}\nCost: {oven_upgrade_price} cookies",
+                    value=f"Current: {numerize(oven_cap, 3)} cookies\nNext: {next_cookie_upgrade}\nCost: {oven_upgrade_price} cookies",
                     inline=True)
 
     embed.add_field(name="Idle Upgrade",
@@ -534,11 +534,11 @@ async def profile(ctx, user: discord.User = None):
                         inline=False)
         embed.add_field(name=f"{bar_data[1] - data['xp']} xp to level {await calculate_level(data['xp']) + 1}",
                         value="", inline=False)
-        embed.add_field(name="Balance", value=f"{balance} cookies", inline=True)
-        embed.add_field(name="Bake Speed", value=f"{bake_speed} seconds", inline=True)
-        embed.add_field(name="Oven Capacity", value=f"{oven_cap} cookies", inline=True)
-        embed.add_field(name="Idle Rate", value=f"{idle_upgrade} cookies per minute", inline=True)
-        embed.add_field(name="Total Cookies Baked", value=data['total_cookies'], inline=True)
+        embed.add_field(name="Balance", value=f"{numerize(balance, 2)} cookies", inline=True)
+        embed.add_field(name="Bake Speed", value=f"{numerize(bake_speed, 2)} seconds", inline=True)
+        embed.add_field(name="Oven Capacity", value=f"{numerize(oven_cap, 2)} cookies", inline=True)
+        embed.add_field(name="Idle Rate", value=f"{numerize(idle_upgrade, 2)} cookies per minute", inline=True)
+        embed.add_field(name="Total Cookies Baked", value=numerize(data['total_cookies'], 2), inline=True)
         embed.set_author(name=f"{user.name}'s profile", icon_url=user.display_avatar.url)
         await ctx.respond(embed=embed)
     except Exception as e:
@@ -556,7 +556,7 @@ async def leaderboard(ctx):
     for i, row in enumerate(rows):
         if row[1] == 0:
             continue
-        embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {row[1]} cookies", inline=False)
+        embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {numerize(row[1], 2)} cookies", inline=False)
     await ctx.respond(embed=embed, view=LeaderboardView(ctx))
 
 gamble_users = []
