@@ -19,7 +19,7 @@ bot = discord.Bot()
 # load_dotenv()
 # token = os.getenv('TOKEN')
 
-token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GFUdlV.BZZ2GLTQSlUMXfJwiGL9x7zhINitdbNBIxtIRE'
+token = 'MTMwOTc4MjYwNjc1NzM2NzgxOQ.GrFizw.PC0ydT9fa96MsYNDFVXNbWPCYgcmkEKhqKtKVI'
 
 admins = [1066616669843243048]
 baking_users = {}
@@ -416,6 +416,7 @@ async def get_xp_bar_data(xp):
 
 @bot.event
 async def on_ready():
+    await bot.change_presence(activity=discord.CustomActivity(name="cookies + gambling = profit"))
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     try:
         conn = await get_db_connection()
@@ -530,7 +531,7 @@ async def profile(ctx, user: discord.User = None):
         idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) - 1, 1)
         bar_data = await get_xp_bar_data(data['xp'])
         embed = discord.Embed(color=0x6b4f37)
-        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3],
+        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 2)} xp", value=bar_data[3],
                         inline=False)
         embed.add_field(name=f"{bar_data[1] - data['xp']} xp to level {await calculate_level(data['xp']) + 1}",
                         value="", inline=False)
