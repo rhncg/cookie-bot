@@ -522,7 +522,7 @@ async def bake(ctx):
     new_time = f'<t:{int(current_time + bake_speed)}:R>'
 
     baking_users[user_id] = True
-    bake_message = await ctx.respond(f'You started baking {oven_cap} cookies. It will be done {new_time}', delete_after=bake_speed+5)
+    bake_message = await ctx.respond(f'You started baking {numerize(oven_cap, 2)} cookies. It will be done {new_time}', delete_after=bake_speed+5)
 
     await update_data(data)
 
@@ -532,7 +532,7 @@ async def bake(ctx):
     data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
-    await bake_message.edit(content=f'You baked {oven_cap} cookies! Your new balance is {data["balance"]}. (+{round(oven_cap * 0.5)} xp)')
+    await bake_message.edit(content=f'You baked {numerize(oven_cap, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
 
     ping = data['ping']
     if ping == 2:
@@ -746,8 +746,13 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.2", inline=False)
-    embed.add_field(name="Upcoming", value="- Boosts\n- Drops\n- Leaderboard Improvements\n- Better Gambling\n- QOL stuff", inline=False)
+    embed.add_field(name="Version", value="1.7.3", inline=False)
+    embed.add_field(name="Upcoming", value="- Boosts\n"
+                                           "- Drops\n"
+                                           "- Leaderboard Improvements\n"
+                                           "- Better Gambling\n"
+                                           "- QOL stuff\n"
+                                           "- Better XP scaling", inline=False)
     await ctx.respond(embed=embed)
 
 bot.run(token)
