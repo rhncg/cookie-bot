@@ -746,7 +746,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.3", inline=False)
+    embed.add_field(name="Version", value="1.7.4", inline=False)
     embed.add_field(name="Upcoming", value="- Boosts\n"
                                            "- Drops\n"
                                            "- Leaderboard Improvements\n"
@@ -754,5 +754,16 @@ async def updates(ctx):
                                            "- QOL stuff\n"
                                            "- Better XP scaling", inline=False)
     await ctx.respond(embed=embed)
+
+@bot.command()
+async def admin(ctx, cmd: str):
+    if ctx.author.id in admins:
+        cmd = cmd.lower()
+        if cmd == "rsmsg":
+            await ctx.send("Bot is restarting soon, please wait...")
+            await ctx.respond("Sent", ephemeral=True)
+    else:
+        await ctx.respond("You are not an admin.", ephemeral=True)
+
 
 bot.run(token)
