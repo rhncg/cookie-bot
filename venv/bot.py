@@ -1,5 +1,6 @@
 import math
 import discord
+from discord.ext.pages import Paginator, Page
 # from dotenv import load_dotenv
 import aiosqlite
 import asyncio
@@ -28,6 +29,7 @@ class LeaderboardView(discord.ui.View):
         super().__init__()
         self.ctx = ctx  # Save the context to fetch data later
         self.sort_by_level = False  # Track sorting state
+        self.page = 1
 
     @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green)
     async def sort_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -47,10 +49,10 @@ class LeaderboardView(discord.ui.View):
             if row[1] == 0:
                 continue
             if self.sort_by_level:
-                label = f"Level {await calculate_level(row[1])} - {row[1]} xp"
+                label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
                 embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
             else:
-                label = f"{row[1]} cookies"
+                label = f"{numerize(row[1], 2)} cookies"
                 embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
 
         # Update the interaction message with the new data and view
@@ -185,7 +187,6 @@ class UpgradeView(discord.ui.View):
         for child in self.children:
             child.disabled = True
 
-
 class GambleConfirmationView(discord.ui.View):
     def __init__(self, user_id, amount):
         super().__init__()
@@ -274,7 +275,6 @@ async def get_data(user_id):
 
     return data
 
-
 async def update_data(data):
     user_id = data.pop('user_id', None)
     set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
@@ -312,25 +312,25 @@ async def make_shop_embed(user_id):
     ping = data['ping']
     idle_upgrade_level = data['idle_upgrade_level']
 
-    bake_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'bake_speed'), 3)
-    oven_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'oven_cap'), 3)
-    idle_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'idle_upgrade'), 3)
+    bake_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'bake_speed'), 2)
+    oven_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'oven_cap'), 2)
+    idle_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'idle_upgrade'), 2)
 
     try:
-        next_bake_upgrade = numerize(bake_speed_upgrades[bake_speed_upgrades.index(bake_speed) + 1], 3)
+        next_bake_upgrade = numerize(bake_speed_upgrades[bake_speed_upgrades.index(bake_speed) + 1], 2)
         next_bake_upgrade = f"{next_bake_upgrade} seconds"
     except IndexError:
         next_bake_upgrade = "Max Level Reached"
         bake_upgrade_price = 0
 
     try:
-        next_cookie_upgrade = numerize(await calculate_next_upgrade(data, 'oven_cap'), 3)
+        next_cookie_upgrade = numerize(await calculate_next_upgrade(data, 'oven_cap'), 2)
         next_cookie_upgrade = f"{next_cookie_upgrade} cookies"
     except IndexError:
         next_cookie_upgrade = "Max Level Reached"
 
-    idle_upgrade = numerize(round(1.1 ** (idle_upgrade_level - 1) - 1, 1), 3)
-    next_idle_upgrade = numerize(round((1.1 ** idle_upgrade_level) - 1, 1), 3)
+    idle_upgrade = numerize(round(1.1 ** (idle_upgrade_level - 1) - 1, 1), 2)
+    next_idle_upgrade = numerize(round((1.1 ** idle_upgrade_level) - 1, 1), 2)
 
 
     view = UpgradeView(user_id, data['ping'])
@@ -344,7 +344,7 @@ async def make_shop_embed(user_id):
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",
                     inline=True)
     embed.add_field(name="Oven Capacity Upgrade",
-                    value=f"Current: {numerize(oven_cap, 3)} cookies\nNext: {next_cookie_upgrade}\nCost: {oven_upgrade_price} cookies",
+                    value=f"Current: {numerize(oven_cap, 2)} cookies\nNext: {next_cookie_upgrade}\nCost: {oven_upgrade_price} cookies",
                     inline=True)
 
     embed.add_field(name="Idle Upgrade",
@@ -357,7 +357,6 @@ async def make_shop_embed(user_id):
         embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 10 cookies", inline=True)
     embed.add_field(name="Current Balance", value=f"{balance} cookies", inline=False)
     return embed
-
 
 async def calculate_next_upgrade_price(data, upgrade_type):
     base_price = 5
@@ -393,7 +392,6 @@ async def update_idle_balance(data):
     data['last_active'] = datetime.now().timestamp()
     await update_data(data)
 
-
 async def calculate_level(xp):
     return int(math.sqrt(xp) * 0.2)
 
@@ -411,6 +409,7 @@ async def get_xp_bar_data(xp):
     bar.append(f" ({progress:.0f}%)")
     bar = "".join(bar)
     return [current_level_xp, next_level_xp, progress, bar]
+
 
 @bot.event
 async def on_ready():
@@ -497,8 +496,6 @@ async def on_ready():
         print(amount, ctx.author.id)
     '''
 
-
-
 @bot.command()
 async def ping(ctx):
     await ctx.respond(f'Pong! {round(bot.latency * 1000)}ms')
@@ -549,7 +546,6 @@ async def shop(ctx):
     embed = await make_shop_embed(ctx.author.id)
     await ctx.respond(embed=embed, view=UpgradeView(ctx.author.id, data['ping']))
 
-
 @bot.command()
 async def profile(ctx, user: discord.User = None):
     if user is None:
@@ -563,9 +559,9 @@ async def profile(ctx, user: discord.User = None):
         idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) - 1, 1)
         bar_data = await get_xp_bar_data(data['xp'])
         embed = discord.Embed(color=0x6b4f37)
-        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 3)} xp", value=bar_data[3],
+        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 2)} xp", value=bar_data[3],
                         inline=False)
-        embed.add_field(name=f"{bar_data[1] - data['xp']} xp to level {await calculate_level(data['xp']) + 1}",
+        embed.add_field(name=f"{numerize(bar_data[1] - data['xp'], 2)} xp to level {await calculate_level(data['xp']) + 1}",
                         value="", inline=False)
         embed.add_field(name="Balance", value=f"{numerize(balance, 2)} cookies", inline=True)
         embed.add_field(name="Bake Speed", value=f"{numerize(bake_speed, 2)} seconds", inline=True)
@@ -576,7 +572,6 @@ async def profile(ctx, user: discord.User = None):
         await ctx.respond(embed=embed)
     except Exception as e:
         await ctx.respond(f"That isn't a valid user. {e}", ephemeral=True)
-
 
 @bot.command()
 async def leaderboard(ctx):
@@ -633,7 +628,6 @@ async def gamble(ctx, quick_selection: discord.Option(str, choices=['all', 'half
     embed.add_field(name=f"You can either win or lose up to {amount} cookies.", value="", inline=False)
     embed.add_field(name="This action cannot be undone.", value="", inline=False)
     await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
-
 
 @bot.command()
 async def daily(ctx):
@@ -713,7 +707,6 @@ async def cooldowns(ctx):
 
     await ctx.respond(embed=embed)
 
-
 @bot.command()
 async def debug(ctx, user: discord.User = None):
     if user is None:
@@ -749,5 +742,12 @@ async def suggest(ctx, suggestion: str):
         user = await bot.fetch_user(users)
         await user.send(f"{ctx.author.name} has suggested: {suggestion}")
     await ctx.respond("Your suggestion has been sent to rohan.", ephemeral=True)
+
+@bot.command()
+async def updates(ctx):
+    embed = discord.Embed(title="Updates", color=0x6b4f37)
+    embed.add_field(name="Version", value="1.7.2", inline=False)
+    embed.add_field(name="Upcoming", value="- Boosts\n- Drops\n- Leaderboard Improvements\n- Better Gambling\n- QOL stuff", inline=False)
+    await ctx.respond(embed=embed)
 
 bot.run(token)
