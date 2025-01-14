@@ -202,19 +202,20 @@ class GambleConfirmationView(discord.ui.View):
         gamble_result = random.randint(-self.amount, self.amount)
         await update_balance(data, gamble_result)
         data['last_gamble'] = datetime.now().timestamp()
+        balance = data['balance']
         await update_data(data)
         gamble_users.remove(interaction.user.id)
         if gamble_result > 0:
             await interaction.response.edit_message(
-                content=f"You gambled {self.amount} cookies and won {gamble_result} cookies! Your new balance is {data['balance']}.",
+                content=f"You gambled {numerize(self.amount, 2)} cookies and won {numerize(gamble_result, 2)} cookies! Your new balance is {numerize(balance, 2)}.",
                 embed=None, view=None)
         elif gamble_result < 0:
             await interaction.response.edit_message(
-                content=f"You gambled {self.amount} cookies and lost {abs(gamble_result)} cookies. Your new balance is {data['balance']}.",
+                content=f"You gambled {numerize(self.amount, 2)} cookies and lost {numerize(abs(gamble_result), 2)} cookies. Your new balance is {numerize(balance, 2)}.",
                 embed=None, view=None)
         else:
             await interaction.response.edit_message(
-                content=f"You gambled {self.amount} cookies and ended up with the same amount. Your balance is still {data['balance']}.",
+                content=f"You gambled {numerize(self.amount, 2)} cookies and ended up with the same amount. Your balance is still {numerize(balance, 2)}.",
                 embed=None, view=None)
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
@@ -624,8 +625,8 @@ async def gamble(ctx, quick_selection: discord.Option(str, choices=['all', 'half
         return
     gamble_users.append(ctx.author.id)
 
-    embed = discord.Embed(title=f"Are you sure you want to gamble {amount} cookies?", color=0x6b4f37)
-    embed.add_field(name=f"You can either win or lose up to {amount} cookies.", value="", inline=False)
+    embed = discord.Embed(title=f"Are you sure you want to gamble {numerize(amount, 2)} cookies?", color=0x6b4f37)
+    embed.add_field(name=f"You can either win or lose up to {numerize(amount, 2)} cookies.", value="", inline=False)
     embed.add_field(name="This action cannot be undone.", value="", inline=False)
     await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
 
@@ -677,7 +678,7 @@ async def steal(ctx, user: discord.User):
     if chance == 1:
         data['balance'] -= amount
         await update_balance(data, amount)
-        await ctx.respond(f"You stole {amount} cookies from <@{user.id}>.")
+        await ctx.respond(f"You stole {numerize(amount, 2)} cookies from <@{user.id}>.")
     else:
         await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
 
@@ -746,7 +747,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.4", inline=False)
+    embed.add_field(name="Version", value="1.7.5", inline=False)
     embed.add_field(name="Upcoming", value="- Boosts\n"
                                            "- Drops\n"
                                            "- Leaderboard Improvements\n"
