@@ -595,7 +595,7 @@ async def leaderboard(ctx):
 gamble_users = []
 
 @bot.command()
-async def gamble(ctx, amount: int = None, quick_selection: discord.Option(str, choices=['all', 'half']) = None):
+async def gamble(ctx, quick_selection: discord.Option(str, choices=['all', 'half']) = None, amount: int = None):
     data = await get_data(ctx.author.id)
     last_gamble = data['last_gamble']
     balance = data['balance']
