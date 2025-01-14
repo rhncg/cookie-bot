@@ -1,7 +1,5 @@
 import math
 import discord
-import os
-from attr import dataclass
 # from dotenv import load_dotenv
 import aiosqlite
 import asyncio
@@ -19,7 +17,7 @@ bot = discord.Bot()
 # load_dotenv()
 # token = os.getenv('TOKEN')
 
-token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GFUdlV.BZZ2GLTQSlUMXfJwiGL9x7zhINitdbNBIxtIRE'
+token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GG-bmu.5Jq3gIuXkJwFQvDlKKPTcBwLUUwKq78JDEHcEc'
 
 admins = [1066616669843243048]
 baking_users = {}
@@ -416,6 +414,7 @@ async def get_xp_bar_data(xp):
 
 @bot.event
 async def on_ready():
+    await bot.change_presence(activity=discord.CustomActivity(name="cookies + gambling = profit"))
     print(f'Logged in as {bot.user} (ID: {bot.user.id})')
     try:
         conn = await get_db_connection()
@@ -442,39 +441,73 @@ async def on_ready():
     except Exception as e:
         print(f"Error creating table: {e}")
 
+    '''
+    print(bot.user.id)
+    if bot.user.id == 1326398030710313012:
+        @bot.command()
+        async def reset_database(ctx):
+            if ctx.author.id in admins:
+                try:
+                    conn = await get_db_connection()
+                    cursor = await conn.cursor()
+
+                    # Drop the existing table
+                    await cursor.execute("DROP TABLE IF EXISTS users")
+                    await conn.commit()
+
+                    # Recreate the table
+                    await cursor.execute("""
+                        CREATE TABLE users (
+                            user_id INTEGER PRIMARY KEY,
+                            balance INTEGER DEFAULT 0,
+                            oven_cap INTEGER DEFAULT 1,
+                            bake_speed INTEGER DEFAULT 60,
+                            ping INTEGER DEFAULT 0,
+                            last_active INTEGER DEFAULT 0,
+                            idle_upgrade_level INTEGER DEFAULT 1,
+                            last_daily INTEGER DEFAULT 0,
+                            xp INTEGER DEFAULT 0,
+                            last_steal INTEGER DEFAULT 0,
+                            last_gamble INTEGER DEFAULT 0,
+                            daily_streak INTEGER DEFAULT 0,
+                            interactions INTEGER DEFAULT 0,
+                            total_cookies INTEGER DEFAULT 0
+                        )
+                        """)
+                    await conn.commit()
+
+                    await ctx.respond("database has been reset")
+                except Exception as e:
+                    await ctx.respond(f"An error occurred while resetting the database: {e}")
+            else:
+                await ctx.respond("You do not have permission to use this command.", ephemeral=True)
+    @bot.command()
+    async def add_xp(ctx, amount):
+        data = await get_data(ctx.author.id)
+        data['xp'] += int(amount)
+        await update_data(data)
+        await ctx.respond(f'added {amount} xp')
+
+    @bot.command()
+    async def change_balance(ctx, amount: int):
+        data = await get_data(ctx.author.id)
+        await update_balance(data, amount)
+        await update_data(data)
+        await ctx.respond(f'Your balance has been updated to {data["balance"]}')
+        print(amount, ctx.author.id)
+    '''
+
+
 
 @bot.command()
 async def ping(ctx):
     await ctx.respond(f'Pong! {round(bot.latency * 1000)}ms')
-
-
-'''
-@bot.command()
-async def add_xp(ctx, amount):
-    data = await get_data(ctx.author.id)
-    data['xp'] += int(amount)
-    await update_data(data)
-    await ctx.respond(f'added {amount} xp')
-'''
-
 
 @bot.command()
 async def balance(ctx):
     data = await get_data(ctx.author.id)
     balance = data['balance']
     await ctx.respond(f'You have {balance} cookies.')
-
-
-'''
-@bot.command()
-async def change_balance(ctx, amount: int):
-    data = await get_data(ctx.author.id)
-    await update_balance(data, amount)
-    await update_data(data)
-    await ctx.respond(f'Your balance has been updated to {data["balance"]}')
-    print(amount, ctx.author.id)
-'''
-
 
 @bot.command()
 async def bake(ctx):
@@ -530,7 +563,7 @@ async def profile(ctx, user: discord.User = None):
         idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) - 1, 1)
         bar_data = await get_xp_bar_data(data['xp'])
         embed = discord.Embed(color=0x6b4f37)
-        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {data['xp']} xp", value=bar_data[3],
+        embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 3)} xp", value=bar_data[3],
                         inline=False)
         embed.add_field(name=f"{bar_data[1] - data['xp']} xp to level {await calculate_level(data['xp']) + 1}",
                         value="", inline=False)
@@ -562,7 +595,7 @@ async def leaderboard(ctx):
 gamble_users = []
 
 @bot.command()
-async def gamble(ctx, amount: int):
+async def gamble(ctx, amount: int = None, quick_selection: discord.Option(str, choices=['all', 'half']) = None):
     data = await get_data(ctx.author.id)
     last_gamble = data['last_gamble']
     balance = data['balance']
@@ -570,6 +603,20 @@ async def gamble(ctx, amount: int):
         await ctx.respond(
             f"You have already gambled recently.\nYou can gamble again <t:{int(last_gamble + 120)}:R>.", ephemeral=True)
         return
+
+    if amount is None and quick_selection is None:
+        await ctx.respond("You must specify an amount of cookies to gamble.", ephemeral=True)
+        return
+
+    if amount is not None and quick_selection is not None:
+        await ctx.respond("You cannot specify both an amount and a quick selection.", ephemeral=True)
+        return
+
+    if quick_selection == 'all':
+        amount = balance
+    elif quick_selection == 'half':
+        amount = balance // 2
+
     if balance < amount:
         await ctx.respond("You don't have enough cookies to gamble.")
         return
@@ -702,45 +749,5 @@ async def suggest(ctx, suggestion: str):
         user = await bot.fetch_user(users)
         await user.send(f"{ctx.author.name} has suggested: {suggestion}")
     await ctx.respond("Your suggestion has been sent to rohan.", ephemeral=True)
-
-'''
-@bot.command()
-async def reset_database(ctx):
-    if ctx.author.id in admins:
-        try:
-            conn = await get_db_connection()
-            cursor = await conn.cursor()
-
-            # Drop the existing table
-            await cursor.execute("DROP TABLE IF EXISTS users")
-            await conn.commit()
-
-            # Recreate the table
-            await cursor.execute("""
-                CREATE TABLE users (
-                    user_id INTEGER PRIMARY KEY,
-                    balance INTEGER DEFAULT 0,
-                    oven_cap INTEGER DEFAULT 1,
-                    bake_speed INTEGER DEFAULT 60,
-                    ping INTEGER DEFAULT 0,
-                    last_active INTEGER DEFAULT 0,
-                    idle_upgrade_level INTEGER DEFAULT 1,
-                    last_daily INTEGER DEFAULT 0,
-                    xp INTEGER DEFAULT 0,
-                    last_steal INTEGER DEFAULT 0,
-                    last_gamble INTEGER DEFAULT 0,
-                    daily_streak INTEGER DEFAULT 0,
-                    interactions INTEGER DEFAULT 0,
-                    total_cookies INTEGER DEFAULT 0
-                )
-                """)
-            await conn.commit()
-
-            await ctx.respond("database has been reset")
-        except Exception as e:
-            await ctx.respond(f"An error occurred while resetting the database: {e}")
-    else:
-        await ctx.respond("You do not have permission to use this command.", ephemeral=True)
-'''
 
 bot.run(token)
