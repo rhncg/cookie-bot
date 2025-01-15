@@ -265,7 +265,7 @@ async def get_data(user_id):
         data['last_active'] = datetime.now().timestamp()
     time_elapsed = (datetime.now().timestamp() - data['last_active']) // 60
     if time_elapsed > 0 and data['idle_upgrade_level'] > 1:
-        idle_upgrade = 1.1 ** (data['idle_upgrade_level'] - 1) - 1
+        idle_upgrade = 1.15 ** (data['idle_upgrade_level'] - 1) - 1
         idle_cookies = int(time_elapsed * idle_upgrade)
         await update_balance(data, idle_cookies)
         data['last_active'] = datetime.now().timestamp()
@@ -331,8 +331,8 @@ async def make_shop_embed(user_id):
     except IndexError:
         next_cookie_upgrade = "Max Level Reached"
 
-    idle_upgrade = numerize(round(1.1 ** (idle_upgrade_level - 1) - 1, 1), 2)
-    next_idle_upgrade = numerize(round((1.1 ** idle_upgrade_level) - 1, 1), 2)
+    idle_upgrade = numerize(round(1.15 ** (idle_upgrade_level - 1) - 1, 1), 2)
+    next_idle_upgrade = numerize(round((1.15 ** idle_upgrade_level) - 1, 1), 2)
 
 
     view = UpgradeView(user_id, data['ping'])
@@ -558,7 +558,7 @@ async def profile(ctx, user: discord.User = None):
         bake_speed = data['bake_speed']
         oven_cap = data['oven_cap']
         idle_upgrade_level = data['idle_upgrade_level']
-        idle_upgrade = round(1.1 ** (idle_upgrade_level - 1) - 1, 1)
+        idle_upgrade = round(1.15 ** (idle_upgrade_level - 1) - 1, 1)
         bar_data = await get_xp_bar_data(data['xp'])
         embed = discord.Embed(color=0x6b4f37)
         embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 2)} xp", value=bar_data[3],
@@ -748,7 +748,8 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.6", inline=False)
+    embed.add_field(name="Version", value="1.7.8", inline=False)
+    embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)")
     embed.add_field(name="Upcoming", value="- Boosts\n"
                                            "- Drops\n"
                                            "- Leaderboard Improvements\n"
