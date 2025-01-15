@@ -1,0 +1,41 @@
+import discord
+from discord.ext import commands
+import funcs
+
+class Bake(discord.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command()
+    async def bake(ctx):
+        user_id = ctx.author.id
+        data = await get_data(user_id)
+        bake_speed = data['bake_speed']
+        oven_cap = data['oven_cap']
+
+        if user_id in baking_users:
+            await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.',
+                            ephemeral=True)
+            return
+
+        current_time = datetime.now().timestamp()
+        new_time = f'<t:{int(current_time + bake_speed)}:R>'
+
+        baking_users[user_id] = True
+        bake_message = await ctx.respond(f'You started baking {numerize(oven_cap, 2)} cookies. It will be done {new_time}', delete_after=bake_speed+5)
+
+        await update_data(data)
+
+        await asyncio.sleep(bake_speed - 1)
+        data = await get_data(user_id)
+        await update_balance(data, oven_cap)
+        data['xp'] += round(oven_cap * 0.5)
+        await update_data(data)
+        del baking_users[user_id]
+        await bake_message.edit(content=f'You baked {numerize(oven_cap, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
+
+        ping = data['ping']
+        if ping == 2:
+            ping_message = await bake_message.channel.send(f"<@{user_id}>")
+            await asyncio.sleep(5)
+            await ping_message.delete()
