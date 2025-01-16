@@ -384,6 +384,7 @@ async def update_balance(data, amount):
     data['balance'] += amount
     if amount > 0:
         data['total_cookies'] += amount
+    update_data(data)
     return data
 
 async def calculate_level(xp):
