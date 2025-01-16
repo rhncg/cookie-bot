@@ -86,7 +86,7 @@ class UpgradeView(discord.ui.View):
         if data['balance'] >= upgrade_price:
             try:
                 new_bake_speed = bake_speed_upgrades[bake_speed_upgrades.index(data['bake_speed']) + 1]
-                data['balance'] -= upgrade_price
+                data = await update_balance(data, -upgrade_price)
                 data['bake_speed'] = new_bake_speed
                 data['xp'] += 5
                 await update_data(data)
@@ -112,7 +112,7 @@ class UpgradeView(discord.ui.View):
         if data['balance'] >= upgrade_price:
             try:
                 new_oven_cap = await calculate_next_upgrade(data, 'oven_cap')
-                data['balance'] -= upgrade_price
+                data = await update_balance(data, -upgrade_price)
                 data['oven_cap'] = new_oven_cap
                 data['xp'] += 5
                 await update_data(data)
@@ -137,7 +137,7 @@ class UpgradeView(discord.ui.View):
         idle_upgrade_level = data['idle_upgrade_level']
         upgrade_price = await calculate_next_upgrade_price(data, 'idle_upgrade')
         if data['balance'] >= upgrade_price:
-            data['balance'] -= upgrade_price
+            data = await update_balance(data, -upgrade_price)
             data['idle_upgrade_level'] = idle_upgrade_level + 1
             data['xp'] += 5
             await update_data(data)
@@ -157,7 +157,7 @@ class UpgradeView(discord.ui.View):
         ping = data['ping']
         if ping == 0:
             if balance >= 10:
-                data['balance'] -= 10
+                data = await update_balance(data, -10)
                 data['ping'] = 2
                 data['xp'] += 5
                 await update_data(data)
@@ -200,7 +200,7 @@ class GambleConfirmationView(discord.ui.View):
             return
         data = await get_data(interaction.user.id)
         gamble_result = random.randint(-self.amount, self.amount)
-        await update_balance(data, gamble_result)
+        data = await update_balance(data, gamble_result)
         data['last_gamble'] = datetime.now().timestamp()
         balance = data['balance']
         await update_data(data)
@@ -267,7 +267,7 @@ async def get_data(user_id):
     if time_elapsed > 0 and data['idle_upgrade_level'] > 1:
         idle_upgrade = 1.15 ** (data['idle_upgrade_level'] - 1) - 1
         idle_cookies = int(time_elapsed * idle_upgrade)
-        await update_balance(data, idle_cookies)
+        data = await update_balance(data, idle_cookies)
         data['last_active'] = datetime.now().timestamp()
         await update_data(data)
     else:
@@ -384,15 +384,7 @@ async def update_balance(data, amount):
     data['balance'] += amount
     if amount > 0:
         data['total_cookies'] += amount
-
-async def update_idle_balance(data):
-    idle_upgrade = data['idle_upgrade']
-    time_elapsed = (datetime.now().timestamp() - data['last_active']) // 60  # Minutes since last activity
-    idle_cookies = int(time_elapsed * idle_upgrade)
-    await update_balance(data, idle_cookies)
-
-    data['last_active'] = datetime.now().timestamp()
-    await update_data(data)
+    return data
 
 async def calculate_level(xp):
     return int(math.sqrt(xp) * 0.2)
@@ -492,7 +484,7 @@ async def on_ready():
     @bot.command()
     async def change_balance(ctx, amount: int):
         data = await get_data(ctx.author.id)
-        await update_balance(data, amount)
+        data = await update_balance(data, amount)
         await update_data(data)
         await ctx.respond(f'Your balance has been updated to {data["balance"]}')
         print(amount, ctx.author.id)
@@ -530,7 +522,7 @@ async def bake(ctx):
 
     await asyncio.sleep(bake_speed - 1)
     data = await get_data(user_id)
-    await update_balance(data, oven_cap)
+    data = await update_balance(data, oven_cap)
     data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
@@ -647,7 +639,7 @@ async def daily(ctx):
         else:
             data['daily_streak'] = 0
 
-        await update_balance(data, reward)
+        data = await update_balance(data, reward)
         data['last_daily'] = datetime.now().timestamp()
         await update_data(data)
         await ctx.respond(
@@ -677,8 +669,8 @@ async def steal(ctx, user: discord.User):
     amount = random.randint(1, int(balance * 0.2))
     chance = random.randint(1, 3)
     if chance == 1:
-        data['balance'] -= amount
-        await update_balance(data, amount)
+        user_data = await update_balance(user_data, amount)
+        data = await update_balance(data, -amount)
         await ctx.respond(f"You stole {numerize(amount, 2)} cookies from <@{user.id}>.")
     else:
         await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
@@ -748,8 +740,9 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.8", inline=False)
-    embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)")
+    embed.add_field(name="Version", value="1.7.9", inline=False)
+    embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
+                                            "- Fixed stealing bug", inline=False)
     embed.add_field(name="Upcoming", value="- Boosts\n"
                                            "- Drops\n"
                                            "- Leaderboard Improvements\n"
