@@ -134,6 +134,8 @@ class UpgradeView(discord.ui.View):
     @discord.ui.button(label="Buy Idle Upgrade", style=discord.ButtonStyle.green)
     async def idle_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
+        for i in data:
+            print(i)
         idle_upgrade_level = data['idle_upgrade_level']
         upgrade_price = await calculate_next_upgrade_price(data, 'idle_upgrade')
         if data['balance'] >= upgrade_price:
@@ -384,7 +386,7 @@ async def update_balance(data, amount):
     data['balance'] += amount
     if amount > 0:
         data['total_cookies'] += amount
-        return data
+    return data
 
 async def calculate_level(xp):
     return int(math.sqrt(xp) * 0.2)
