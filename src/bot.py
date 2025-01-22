@@ -10,7 +10,7 @@ from numerize.numerize import numerize
 
 async def get_db_connection():
     if not hasattr(bot, 'db_conn'):
-        bot.db_conn = await aiosqlite.connect("../data.db")
+        bot.db_conn = await aiosqlite.connect("data.db")
     return bot.db_conn
 
 bot = discord.Bot()
@@ -395,12 +395,12 @@ async def make_shop_embed(user_id):
     if data['boost_time'] + 900 > datetime.now().timestamp():
         active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
     if data['boost_time'] > datetime.now().timestamp():
-        active = "Active"
+        active = f"Active (Boost ends <t:{int(data['boost_time'])}:R>)"
     if data['boost_time'] + 900 < datetime.now().timestamp():
         active = "Inactive (Ready)"
         
     
-    embed.add_field(name="Boosts", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {boost_upgrade_price} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
+    embed.add_field(name="Boost", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {boost_upgrade_price} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
 
 
     if not ping == 0:
@@ -766,6 +766,15 @@ async def cooldowns(ctx):
         embed.add_field(name="Gamble", value=f"Your gamble will be available <t:{int(data['last_gamble']) + 120}:R>", inline=False)
     else:
         embed.add_field(name="Gamble", value="Your gamble is available.", inline=False)
+    
+    if data['boost_time'] + 900 > datetime.now().timestamp():
+        active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
+    if data['boost_time'] > datetime.now().timestamp():
+        active = f"Active (Boost ends <t:{int(data['boost_time'])}:R>)"
+    if data['boost_time'] + 900 < datetime.now().timestamp():
+        active = "Inactive (Ready)"
+    
+    embed.add_field(name="Boost", value=active, inline=False)
 
     await ctx.respond(embed=embed)
 
@@ -811,7 +820,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.8", inline=False)
+    embed.add_field(name="Version", value="1.8.1", inline=False)
     embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
                                             "- Fixed stealing bug\n"
                                             "- Boosts are now available", inline=False)
