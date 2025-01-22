@@ -59,7 +59,7 @@ class LeaderboardView(discord.ui.View):
         await interaction.response.edit_message(embed=embed, view=self)
 
 class UpgradeView(discord.ui.View):
-    def __init__(self, user_id, ping):
+    def __init__(self, user_id, ping, boost_time):
         super().__init__()
         self.user_id = user_id
         for child in self.children:
@@ -69,6 +69,9 @@ class UpgradeView(discord.ui.View):
             elif "Ping" in child.label and ping == 2:
                 child.label = "Disable Ping Upgrade"
                 child.style = discord.ButtonStyle.red
+        for child in self.children:
+            if "Activate Boost" in child.label and boost_time + 900 > datetime.now().timestamp():
+                child.disabled = True
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         # Check if the user interacting matches the intended user
@@ -79,7 +82,7 @@ class UpgradeView(discord.ui.View):
             return False
         return True
 
-    @discord.ui.button(label="Upgrade Bake Speed", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Upgrade Bake Speed", style=discord.ButtonStyle.green, row=0)
     async def upgrade_bake_speed_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         upgrade_price = await calculate_next_upgrade_price(data, 'bake_speed')
@@ -94,18 +97,18 @@ class UpgradeView(discord.ui.View):
                 embed.add_field(name=f'Your bake speed has been upgraded to {data["bake_speed"]} seconds (+5 xp)', value="",
                                 inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
             except IndexError:
                 embed = await make_shop_embed(interaction.user.id)
                 embed.add_field(name="You've reached the maximum bake speed.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         else:
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name="You don't have enough cookies to upgrade your bake speed.", value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Upgrade Oven Capacity", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Upgrade Oven Capacity", style=discord.ButtonStyle.green, row=0)
     async def upgrade_cookie_count_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         upgrade_price = await calculate_next_upgrade_price(data, 'oven_cap')
@@ -120,18 +123,18 @@ class UpgradeView(discord.ui.View):
                 embed.add_field(name=f'Your oven capacity has been upgraded to {data["oven_cap"]} cookies (+5 xp)', value="",
                                 inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
             except IndexError:
                 embed = await make_shop_embed(interaction.user.id)
                 embed.add_field(name="You've reached the maximum oven capacity.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         else:
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name="You don't have enough cookies to upgrade your oven capacity.", value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Buy Idle Upgrade", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Buy Idle Upgrade", style=discord.ButtonStyle.green, row=0)
     async def idle_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         for i in data:
@@ -146,13 +149,13 @@ class UpgradeView(discord.ui.View):
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name=f'Your idle upgrade has been upgraded to level {data["idle_upgrade_level"]} (+5 xp)',
                             value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         else:
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name="You don't have enough cookies to upgrade your idle upgrade.", value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Buy Ping Upgrade", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Buy Ping Upgrade", style=discord.ButtonStyle.green, row=1)
     async def ping_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         balance = data['balance']
@@ -166,24 +169,56 @@ class UpgradeView(discord.ui.View):
                 embed = await make_shop_embed(interaction.user.id)
                 embed.add_field(name="You've bought the ping upgrade! (+5 xp)", value="", inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
             else:
                 embed = await make_shop_embed(interaction.user.id)
                 embed.add_field(name="You don't have enough cookies to buy the ping upgrade.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed,
-                                                        view=UpgradeView(interaction.user.id, data['ping']))
+                                                        view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         elif ping == 1:
             data['ping'] = 2
             await update_data(data)
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name="You have enabled the ping upgrade.", value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         elif ping == 2:
             data['ping'] = 1
             await update_data(data)
             embed = await make_shop_embed(interaction.user.id)
             embed.add_field(name="You have disabled the ping upgrade.", value="", inline=False)
-            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping']))
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+
+    @discord.ui.button(label="Activate Boost", style=discord.ButtonStyle.green, row=1)
+    async def boost_callback(self, button, interaction):
+        data = await get_data(interaction.user.id)
+        balance = data['balance']
+        if balance >= await calculate_next_upgrade_price(data, 'boost_activate'):
+            data = await update_balance(data, -1 * await calculate_next_upgrade_price(data, 'boost_activate'))
+            data['boost_time'] = datetime.now().timestamp() + 900
+            await update_data(data)
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You have activated the boost.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+        else:
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You don't have enough cookies to activate the boost.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+    
+    @discord.ui.button(label="Upgrade Boost", style=discord.ButtonStyle.green, row=1)
+    async def boost_upgrade_callback(self, button, interaction):
+        data = await get_data(interaction.user.id)
+        balance = data['balance']
+        if balance >= await calculate_next_upgrade_price(data, 'boost_upgrade'):
+            data = await update_balance(data, -1 * await calculate_next_upgrade_price(data, 'boost_upgrade'))
+            data['boost_level'] += 1
+            await update_data(data)
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You have upgraded the boost.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+        else:
+            embed = await make_shop_embed(interaction.user.id)
+            embed.add_field(name="You don't have enough cookies to upgrade the boost.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
     async def on_timeout(self):
         for child in self.children:
@@ -233,16 +268,16 @@ async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
     await cursor.execute(
-        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies FROM users WHERE user_id = ?",
+        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level FROM users WHERE user_id = ?",
         (user_id,))
     row = await cursor.fetchone()
     if row is None:
         await cursor.execute(
-            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0))
+            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1))
         await conn.commit()
         await cursor.execute(
-            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies FROM users WHERE user_id = ?",
+            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level FROM users WHERE user_id = ?",
             (user_id,))
         row = await cursor.fetchone()
 
@@ -260,7 +295,9 @@ async def get_data(user_id):
         'last_gamble': row[10],
         'daily_streak': row[11],
         'interactions': row[12],
-        'total_cookies': row[13]
+        'total_cookies': row[13],
+        'boost_time': row[14],
+        'boost_level': row[15]
     }
 
     if data['last_active'] == 0:
@@ -319,6 +356,8 @@ async def make_shop_embed(user_id):
     bake_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'bake_speed'), 2)
     oven_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'oven_cap'), 2)
     idle_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'idle_upgrade'), 2)
+    boost_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'boost_upgrade'), 2)
+    boost_activate_price = numerize(await calculate_next_upgrade_price(data, 'boost_activate'), 2)
 
     try:
         next_bake_upgrade = numerize(bake_speed_upgrades[bake_speed_upgrades.index(bake_speed) + 1], 2)
@@ -336,17 +375,15 @@ async def make_shop_embed(user_id):
     idle_upgrade = numerize(round(1.15 ** (idle_upgrade_level - 1) - 1, 1), 2)
     next_idle_upgrade = numerize(round((1.15 ** idle_upgrade_level) - 1, 1), 2)
 
-
-    view = UpgradeView(user_id, data['ping'])
     user = await bot.fetch_user(user_id)
-
-
 
     embed = discord.Embed(color=0x6b4f37)
     embed.set_author(name=f"{user.name}'s shop", icon_url=user.display_avatar.url)
+
     embed.add_field(name="Bake Speed Upgrade",
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",
                     inline=True)
+                    
     embed.add_field(name="Oven Capacity Upgrade",
                     value=f"Current: {numerize(oven_cap, 2)} cookies\nNext: {next_cookie_upgrade}\nCost: {oven_upgrade_price} cookies",
                     inline=True)
@@ -355,8 +392,19 @@ async def make_shop_embed(user_id):
                     value=f"Current: {idle_upgrade} cookies per minute\nNext: {next_idle_upgrade} cookies per minute\nCost: {idle_upgrade_price} cookies",
                     inline=True)
 
+    if data['boost_time'] + 900 > datetime.now().timestamp():
+        active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
+    elif data['boost_time'] > datetime.now().timestamp():
+        active = "Active"
+    else:
+        active = "Inactive (Ready)"
+        
+    
+    embed.add_field(name="Boosts", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {boost_upgrade_price} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
+
+
     if not ping == 0:
-        embed.add_field(name="Ping When Done Baking", value=f"Owned")
+        embed.add_field(name="Ping When Done Baking", value=f"Owned", inline=True)
     else:
         embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 10 cookies", inline=True)
     embed.add_field(name="Current Balance", value=f"{numerize(balance, 2)} cookies", inline=False)
@@ -374,18 +422,32 @@ async def calculate_next_upgrade_price(data, upgrade_type):
     elif upgrade_type == 'idle_upgrade':
         current_level = data['idle_upgrade_level']
         growth_rate = 1.3
-
+    elif upgrade_type == 'boost_upgrade':
+        base_price = 10
+        current_level = data['boost_level']
+        growth_rate = 45
+    elif upgrade_type == 'boost_activate':
+        price = 0.4 * data['balance']
+        if price < 10:
+            price = 10
+        return price
     else:
-        return 0
+        return None
 
     next_upgrade_price = int(base_price * (growth_rate ** current_level))
     next_upgrade_price = round(next_upgrade_price / 5) * 5
     return next_upgrade_price
 
 async def update_balance(data, amount):
-    data['balance'] += amount
-    if amount > 0:
-        data['total_cookies'] += amount
+    if data['boost_time'] > datetime.now().timestamp() and amount > 0:
+        boost_amount = data['boost_level'] * 0.25 + 1
+        data['balance'] += math.ceil(amount * boost_amount)
+        data['total_cookies'] += math.ceil(amount * boost_amount) 
+    else:
+        data['balance'] += amount
+        if amount > 0:
+            data['total_cookies'] += amount
+
     return data
 
 async def calculate_level(xp):
@@ -429,7 +491,9 @@ async def on_ready():
             last_gamble INTEGER DEFAULT 0,
             daily_streak INTEGER DEFAULT 0,
             interactions INTEGER DEFAULT 0,
-            total_cookies INTEGER DEFAULT 0
+            total_cookies INTEGER DEFAULT 0,
+            boost_time INTEGER DEFAULT 0,
+            boost_level INTEGER DEFAULT 1
         )
         """)
         await conn.commit()
@@ -466,7 +530,9 @@ async def on_ready():
                             last_gamble INTEGER DEFAULT 0,
                             daily_streak INTEGER DEFAULT 0,
                             interactions INTEGER DEFAULT 0,
-                            total_cookies INTEGER DEFAULT 0
+                            total_cookies INTEGER DEFAULT 0,
+                            boost_time INTEGER DEFAULT 0,
+                            boost_level INTEGER DEFAULT 1
                         )
                         """)
                     await conn.commit()
@@ -540,7 +606,7 @@ async def bake(ctx):
 async def shop(ctx):
     data = await get_data(ctx.author.id)
     embed = await make_shop_embed(ctx.author.id)
-    await ctx.respond(embed=embed, view=UpgradeView(ctx.author.id, data['ping']))
+    await ctx.respond(embed=embed, view=UpgradeView(ctx.author.id, data['ping'], data['boost_time']))
 
 @bot.command()
 async def profile(ctx, user: discord.User = None):
@@ -653,34 +719,34 @@ async def steal(ctx, user: discord.User):
         await ctx.respond("You cannot steal from yourself.", ephemeral=True)
         return
     data = await get_data(user.id)
-    balance = data['balance']
+    steal_balance = data['balance']
 
-    user_data = await get_data(ctx.author.id)
-    last_steal = user_data['last_steal']
+    self_data = await get_data(ctx.author.id)
+    last_steal = self_data['last_steal']
     if datetime.now().timestamp() - last_steal < 900:
         await ctx.respond(
             f"You have already attempted to steal from someone recently.\nYou can steal again <t:{int(last_steal + 900)}:R>.", ephemeral=True)
         return
 
-    if int(balance * 0.2) < 1:
+    if int(steal_balance * 0.2) < 1:
         await ctx.respond("That user doesn't have enough cookies.", ephemeral=True)
         return
-    if int(balance * 0.2) > user_data['balance'] * 3:
+    if int(steal_balance * 0.2) > self_data['balance'] * 3:
         await ctx.respond("That user has too many cookies for you to steal from.", ephemeral=True)
         return
-    amount = random.randint(1, int(balance * 0.2))
+    amount = random.randint(1, int(steal_balance * 0.2))
     chance = random.randint(1, 3)
     if chance == 1:
-        user_data = await update_balance(user_data, amount)
+        self_data = await update_balance(self_data, amount)
         data = await update_balance(data, -amount)
         await ctx.respond(f"You stole {numerize(amount, 2)} cookies from <@{user.id}>.")
     else:
         await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
 
-    user_data['last_steal'] = datetime.now().timestamp()
+    self_data['last_steal'] = datetime.now().timestamp()
 
     await update_data(data)
-    await update_data(user_data)
+    await update_data(self_data)
 
 @bot.command()
 async def cooldowns(ctx):
@@ -725,7 +791,10 @@ async def debug(ctx, user: discord.User = None):
                                                 f"Last Gamble: {data['last_gamble']}\n"
                                                 f"Daily Streak: {data['daily_streak']}\n"
                                                 f"Interactions: {data['interactions']}\n"
-                                                f"Total Cookies: {data['total_cookies']}", inline=False)
+                                                f"Total Cookies: {data['total_cookies']}\n"
+                                                f"Boost Time: {data['boost_time']}\n"
+                                                f"Boost Level: {data['boost_level']}", inline=False)
+        embed.add_field(name="Current Unix Time", value=f"{datetime.now().timestamp()}", inline=False)
         embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
         await ctx.respond(embed=embed)
     else:
@@ -742,11 +811,11 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.7.9", inline=False)
+    embed.add_field(name="Version", value="1.8", inline=False)
     embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
-                                            "- Fixed stealing bug", inline=False)
-    embed.add_field(name="Upcoming", value="- Boosts\n"
-                                           "- Drops\n"
+                                            "- Fixed stealing bug\n"
+                                            "- Boosts are now available", inline=False)
+    embed.add_field(name="Upcoming", value="- Drops\n"
                                            "- Leaderboard Improvements\n"
                                            "- Better Gambling\n"
                                            "- QOL stuff\n"
