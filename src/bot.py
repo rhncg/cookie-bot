@@ -1,5 +1,5 @@
-import math
 import discord
+import math
 from discord.ext.pages import Paginator, Page
 # from dotenv import load_dotenv
 import aiosqlite
@@ -444,9 +444,9 @@ async def update_balance(data, amount):
         data['balance'] += math.ceil(amount * boost_amount)
         data['total_cookies'] += math.ceil(amount * boost_amount) 
     else:
-        data['balance'] += amount
+        data['balance'] += int(amount)
         if amount > 0:
-            data['total_cookies'] += amount
+            data['total_cookies'] += int(amount)
 
     return data
 
@@ -820,7 +820,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.8.1", inline=False)
+    embed.add_field(name="Version", value="1.8.2", inline=False)
     embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
                                             "- Fixed stealing bug\n"
                                             "- Boosts are now available", inline=False)
