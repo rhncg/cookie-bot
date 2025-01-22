@@ -394,9 +394,9 @@ async def make_shop_embed(user_id):
 
     if data['boost_time'] + 900 > datetime.now().timestamp():
         active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
-    elif data['boost_time'] > datetime.now().timestamp():
+    if data['boost_time'] > datetime.now().timestamp():
         active = "Active"
-    else:
+    if data['boost_time'] + 900 < datetime.now().timestamp():
         active = "Inactive (Ready)"
         
     
