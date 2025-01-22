@@ -236,7 +236,7 @@ class GambleConfirmationView(discord.ui.View):
             await interaction.response.send_message("You cannot accept this person's gamble.", ephemeral=True)
             return
         data = await get_data(interaction.user.id)
-        gamble_result = random.randint(-self.amount, self.amount)
+        gamble_result = random.randint(-1 * int(self.amount), int(self.amount))
         data = await update_balance(data, gamble_result)
         data['last_gamble'] = datetime.now().timestamp()
         balance = data['balance']
@@ -670,7 +670,7 @@ async def gamble(ctx, quick_selection: discord.Option(str, choices=['all', 'half
         return
 
     if quick_selection == 'all':
-        amount = balance
+        amount = int(balance)
     elif quick_selection == 'half':
         amount = balance // 2
 
