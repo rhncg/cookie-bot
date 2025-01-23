@@ -243,7 +243,7 @@ class GambleConfirmationView(discord.ui.View):
         await update_data(data)
         gamble_users.remove(interaction.user.id)
         if gamble_result > 0:
-            if data['boost_time'] < datetime.now().timestamp():
+            if data['boost_time'] > datetime.now().timestamp():
                 boost = data['boost_level'] * 0.25 + 1
             else:
                 boost = 1
@@ -598,7 +598,7 @@ async def bake(ctx):
     data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
-    if data['boost_time'] < datetime.now().timestamp():
+    if data['boost_time'] > datetime.now().timestamp():
         boost = data['boost_level'] * 0.25 + 1
     else:
         boost = 1
@@ -718,7 +718,7 @@ async def daily(ctx):
         data = await update_balance(data, reward)
         data['last_daily'] = datetime.now().timestamp()
         await update_data(data)
-        if data['boost_time'] < datetime.now().timestamp():
+        if data['boost_time'] > datetime.now().timestamp():
             boost = data['boost_level'] * 0.25 + 1
         else:
             boost = 1
@@ -751,7 +751,7 @@ async def steal(ctx, user: discord.User):
     if chance == 1:
         self_data = await update_balance(self_data, amount)
         data = await update_balance(data, -amount)
-        if data['boost_time'] < datetime.now().timestamp():
+        if data['boost_time'] > datetime.now().timestamp():
             boost = data['boost_level'] * 0.25 + 1
         else:
             boost = 1
