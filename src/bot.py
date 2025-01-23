@@ -404,7 +404,7 @@ async def make_shop_embed(user_id):
         active = "Inactive (Ready)"
         
     
-    embed.add_field(name="Boost", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {boost_upgrade_price} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
+    embed.add_field(name="Boost", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {numerize(boost_upgrade_price, 2)} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
 
 
     if not ping == 0:
