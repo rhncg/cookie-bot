@@ -137,8 +137,6 @@ class UpgradeView(discord.ui.View):
     @discord.ui.button(label="Buy Idle Upgrade", style=discord.ButtonStyle.green, row=0)
     async def idle_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
-        for i in data:
-            print(i)
         idle_upgrade_level = data['idle_upgrade_level']
         upgrade_price = await calculate_next_upgrade_price(data, 'idle_upgrade')
         if data['balance'] >= upgrade_price:
@@ -645,10 +643,16 @@ async def profile(ctx, user: discord.User = None):
 
 @bot.command()
 async def leaderboard(ctx):
+    data = await get_data(ctx.author.id)
     await ctx.defer()
     conn = await get_db_connection()
     cursor = await conn.cursor()
-    await cursor.execute("SELECT user_id, balance FROM users ORDER BY balance DESC")
+    
+    query = '''
+    SELECT user_id, balance FROM users ORDER BY balance DESC LIMIT 10
+    '''
+
+    await cursor.execute(query)
     rows = await cursor.fetchall()
     embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
     for i, row in enumerate(rows):
@@ -836,7 +840,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.8.3", inline=False)
+    embed.add_field(name="Version", value="1.8.4", inline=False)
     embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
                                             "- Fixed stealing bug\n"
                                             "- Boosts are now available", inline=False)
