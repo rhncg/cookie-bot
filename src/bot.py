@@ -244,7 +244,7 @@ class GambleConfirmationView(discord.ui.View):
         gamble_users.remove(interaction.user.id)
         if gamble_result > 0:
             await interaction.response.edit_message(
-                content=f"You gambled {numerize(self.amount, 2)} cookies and won {numerize(gamble_result, 2)} cookies! Your new balance is {numerize(balance, 2)}.",
+                content=f"You gambled {numerize(self.amount, 2)} cookies and won {numerize(gamble_result, 2) if data['boost_time'] < datetime.now().timestamp() else f'{numerize(gamble_result * (data['boost_level'] * 0.25 + 1), 2)} (boosted {data['boost_level'] * 0.25 + 1}x)'} cookies! Your new balance is {numerize(balance, 2)}.",
                 embed=None, view=None)
         elif gamble_result < 0:
             await interaction.response.edit_message(
@@ -594,7 +594,7 @@ async def bake(ctx):
     data['xp'] += round(oven_cap * 0.5)
     await update_data(data)
     del baking_users[user_id]
-    await bake_message.edit(content=f'You baked {numerize(oven_cap, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
+    await bake_message.edit(content=f'You baked {numerize(oven_cap, 2) if data['boost_time'] < datetime.now().timestamp() else f'{numerize(oven_cap * (data["boost_level"] * 0.25 + 1))} (boosted {data["boost_level"] * 0.25 + 1}x)'} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
 
     ping = data['ping']
     if ping == 2:
@@ -711,7 +711,7 @@ async def daily(ctx):
         data['last_daily'] = datetime.now().timestamp()
         await update_data(data)
         await ctx.respond(
-            f"You have claimed your daily reward of {reward} cookies. You now have {data['balance']} cookies.")
+            f"You have claimed your daily reward of {reward if data['boost_time'] < datetime.now().timestamp() else f'{reward * (data['boost_level'] * 0.25 + 1)} (boosted {data['boost_level'] * 0.25 + 1}x)'} cookies. You now have {data['balance']} cookies.")
 
 @bot.command()
 async def steal(ctx, user: discord.User):
@@ -739,7 +739,7 @@ async def steal(ctx, user: discord.User):
     if chance == 1:
         self_data = await update_balance(self_data, amount)
         data = await update_balance(data, -amount)
-        await ctx.respond(f"You stole {numerize(amount, 2)} cookies from <@{user.id}>.")
+        await ctx.respond(f"You stole {numerize(amount, 2) if data['boost_time'] < datetime.now().timestamp() else f'{numerize(amount * (data['boost_level'] * 0.25 + 1), 2)} (boosted {data['boost_level'] * 0.25 + 1}x)'} cookies from <@{user.id}>.")
     else:
         await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
 
@@ -820,7 +820,7 @@ async def suggest(ctx, suggestion: str):
 @bot.command()
 async def updates(ctx):
     embed = discord.Embed(title="Updates", color=0x6b4f37)
-    embed.add_field(name="Version", value="1.8.2", inline=False)
+    embed.add_field(name="Version", value="1.8.3", inline=False)
     embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
                                             "- Fixed stealing bug\n"
                                             "- Boosts are now available", inline=False)
@@ -828,7 +828,8 @@ async def updates(ctx):
                                            "- Leaderboard Improvements\n"
                                            "- Better Gambling\n"
                                            "- QOL stuff\n"
-                                           "- Better XP scaling", inline=False)
+                                           "- Better XP scaling\n"
+                                           "- Options Menu", inline=False)
     await ctx.respond(embed=embed)
 
 @bot.command()
