@@ -1,13 +1,16 @@
 import discord
-from discord.ext import commands
-import funcs
+from src.funcs.data import get_data, update_data, update_balance
+from src.funcs.globals import baking_users
+from numerize.numerize import numerize
+from datetime import datetime
+import asyncio
 
 class Bake(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command()
-    async def bake(ctx):
+    @discord.command()
+    async def bake(self, ctx):
         user_id = ctx.author.id
         data = await get_data(user_id)
         bake_speed = data['bake_speed']
@@ -28,14 +31,21 @@ class Bake(discord.Cog):
 
         await asyncio.sleep(bake_speed - 1)
         data = await get_data(user_id)
-        await update_balance(data, oven_cap)
+        data = await update_balance(data, oven_cap)
         data['xp'] += round(oven_cap * 0.5)
         await update_data(data)
         del baking_users[user_id]
-        await bake_message.edit(content=f'You baked {numerize(oven_cap, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
+        if data['boost_time'] > datetime.now().timestamp():
+            boost = data['boost_level'] * 0.25 + 1
+        else:
+            boost = 1
+        await bake_message.edit(content=f'You baked {numerize(oven_cap * boost, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
 
         ping = data['ping']
         if ping == 2:
             ping_message = await bake_message.channel.send(f"<@{user_id}>")
             await asyncio.sleep(5)
             await ping_message.delete()
+
+def setup(bot):
+    bot.add_cog(Bake(bot))
