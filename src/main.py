@@ -32,7 +32,8 @@ async def on_ready():
             interactions INTEGER DEFAULT 0,
             total_cookies INTEGER DEFAULT 0,
             boost_time INTEGER DEFAULT 0,
-            boost_level INTEGER DEFAULT 1
+            boost_level INTEGER DEFAULT 1,
+            steal_ping BOOLEAN DEFAULT True
         )
         """)
         await conn.commit()
@@ -44,6 +45,7 @@ cogs_list = [
     'bake',
     'gains',
     'leaderboard',
+    'options',
     'profile',
     'shop',
     'updates'
