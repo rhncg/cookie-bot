@@ -1,9 +1,12 @@
 import discord
+import os
+from dotenv import load_dotenv
 import aiosqlite
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
 
-token = 'MTMyNjM5ODAzMDcxMDMxMzAxMg.GG-bmu.5Jq3gIuXkJwFQvDlKKPTcBwLUUwKq78JDEHcEc'
+load_dotenv()
+token = os.getenv('TOKEN')
 
 @bot.event
 async def on_ready():
