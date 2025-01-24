@@ -7,16 +7,16 @@ async def get_data(user_id):
     conn = await get_db_connection()
     cursor = await conn.cursor()
     await cursor.execute(
-        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level FROM users WHERE user_id = ?",
+        "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal_ping FROM users WHERE user_id = ?",
         (user_id,))
     row = await cursor.fetchone()
     if row is None:
         await cursor.execute(
-            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1))
+            "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal_ping) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, True))
         await conn.commit()
         await cursor.execute(
-            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level FROM users WHERE user_id = ?",
+            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal ping FROM users WHERE user_id = ?",
             (user_id,))
         row = await cursor.fetchone()
 
@@ -36,7 +36,8 @@ async def get_data(user_id):
         'interactions': row[12],
         'total_cookies': row[13],
         'boost_time': row[14],
-        'boost_level': row[15]
+        'boost_level': row[15],
+        'steal_ping': row[16]
     }
 
     data = await update_idle(data)

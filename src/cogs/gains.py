@@ -40,7 +40,10 @@ class Gains(discord.Cog):
                 boost = data['boost_level'] * 0.25 + 1
             else:
                 boost = 1
-            await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from <@{user.id}>.")
+            if data['steal_ping'] == True:
+                await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from <@{user.id}>.")
+            else:
+                await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.name}.")
         else:
             await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
 
