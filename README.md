@@ -1,1 +1,1 @@
-# economy-bot
+COOKIES
