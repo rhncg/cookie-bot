@@ -11,7 +11,7 @@ class OptionsView(discord.ui.View):
         max_values=1,
         options=[
             discord.SelectOption(
-                label="Ping when done baking",
+                label="Ping when stolen from",
                 description="Pings the user when someone steals cookies from them",
             )
         ]
