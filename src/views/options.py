@@ -17,7 +17,7 @@ class OptionsView(discord.ui.View):
         ]
     )
     async def select_callback(self, select, interaction):
-        if select.values[0] == "Ping when done baking":
+        if select.values[0] == "Ping when stolen from":
             data = await get_data(interaction.user.id)
             if data['steal_ping'] == True or data['steal_ping'] == 1:
                 data['steal_ping'] = False
@@ -37,5 +37,5 @@ async def make_options_embed(user_id):
         steal_ping = "Yes"
     else:
         steal_ping = "No"
-    embed.add_field(name="Ping when done baking", value=f"{steal_ping}", inline=False)
+    embed.add_field(name="Ping when stolen from", value=f"{steal_ping}", inline=False)
     return embed
