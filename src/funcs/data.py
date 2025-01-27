@@ -16,7 +16,7 @@ async def get_data(user_id):
             (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, True))
         await conn.commit()
         await cursor.execute(
-            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal ping FROM users WHERE user_id = ?",
+            "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal_ping FROM users WHERE user_id = ?",
             (user_id,))
         row = await cursor.fetchone()
 
