@@ -2,6 +2,7 @@ import discord
 from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import baking_users
 from numerize.numerize import numerize
+from src.funcs.drops import try_drop
 from datetime import datetime
 import asyncio
 
@@ -15,6 +16,8 @@ class Bake(discord.Cog):
         data = await get_data(user_id)
         bake_speed = data['bake_speed']
         oven_cap = data['oven_cap']
+        
+        await try_drop(ctx.channel)
 
         if user_id in baking_users:
             await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.',
