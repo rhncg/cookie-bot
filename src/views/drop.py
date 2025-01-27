@@ -1,5 +1,5 @@
 import discord
-from src.funcs.data import get_data, update_balance
+from src.funcs.data import get_data, update_balance, update_data
 
 class DropView(discord.ui.View):
     def __init__(self):
@@ -13,5 +13,6 @@ class DropView(discord.ui.View):
         if amount < 10:
             amount = 10
         await update_balance(data, amount)
+        await update_data(data)
         embed.add_field(name=f"Drop Claimed!", value=f"<@{interaction.user.id}> won {amount} cookies!", inline=False)
         await interaction.response.edit_message(embed=embed, view=None)
