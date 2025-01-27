@@ -8,14 +8,14 @@ class Updates(discord.Cog):
     @discord.command()
     async def updates(self, ctx):
         embed = discord.Embed(title="Updates", color=0x6b4f37)
-        embed.add_field(name="Version", value="2.1.2", inline=False)
-        embed.add_field(name="Completed", value="- Buffed Idle Upgrade (higher rate now)\n"
+        embed.add_field(name="Version", value="2.2", inline=False)
+        embed.add_field(name="Completed (in order of completion)", value="- Buffed Idle Upgrade (higher rate now)\n"
                                                 "- Fixed stealing bug\n"
                                                 "- Boosts are now available\n"
                                                 "- Added options menu\n"
-                                                "- Boosts are cheaper to activate now", inline=False)
-        embed.add_field(name="Upcoming", value="- Drops\n"
-                                                "- Leaderboard Improvements\n"
+                                                "- Boosts are cheaper to activate now\n"
+                                                "- Drops", inline=False)
+        embed.add_field(name="Upcoming (in no particular order)", value="- Leaderboard Improvements\n"
                                                 "- Boost Duration Upgrades\n"
                                                 "- Better Gambling\n"
                                                 "- QOL stuff\n"
