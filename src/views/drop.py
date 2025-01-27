@@ -1,4 +1,6 @@
 import discord
+import datetime
+import numerize
 from src.funcs.data import get_data, update_balance, update_data
 
 class DropView(discord.ui.View):
@@ -14,5 +16,9 @@ class DropView(discord.ui.View):
             amount = 10
         await update_balance(data, amount)
         await update_data(data)
-        embed.add_field(name=f"Drop Claimed!", value=f"<@{interaction.user.id}> won {amount} cookies!", inline=False)
+        if data['boost_time'] > datetime.now().timestamp():
+            boost = data['boost_level'] * 0.25 + 1
+        else:
+            boost = 1
+        embed.add_field(name=f"Drop Claimed!", value=f"<@{interaction.user.id}> won {numerize(amount * boost, 2)} cookies!", inline=False)
         await interaction.response.edit_message(embed=embed, view=None)
