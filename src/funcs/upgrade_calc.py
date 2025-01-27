@@ -90,7 +90,7 @@ async def calculate_next_upgrade_price(data, upgrade_type):
         current_level = data['boost_level']
         growth_rate = 45
     elif upgrade_type == 'boost_activate':
-        price = 0.4 * data['balance']
+        price = 0.1 * data['balance']
         if price < 10:
             price = 10
         return price
