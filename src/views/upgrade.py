@@ -7,7 +7,7 @@ from src.bot_instance import bot
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping, boost_time):
-        super().__init__()
+        super().__init__(timeout=3600)
         self.user_id = user_id
         for child in self.children:
             if "Ping" in child.label and ping == 1:
@@ -29,7 +29,7 @@ class UpgradeView(discord.ui.View):
             return False
         return True
 
-    @discord.ui.button(label="Upgrade Bake Speed", style=discord.ButtonStyle.green, row=0)
+    @discord.ui.button(label="Upgrade Bake Speed", custom_id="bake_speed", style=discord.ButtonStyle.green, row=0)
     async def upgrade_bake_speed_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         upgrade_price = await calculate_next_upgrade_price(data, 'bake_speed')
@@ -55,7 +55,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade your bake speed.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Upgrade Oven Capacity", style=discord.ButtonStyle.green, row=0)
+    @discord.ui.button(label="Upgrade Oven Capacity", custom_id="oven_cap", style=discord.ButtonStyle.green, row=0)
     async def upgrade_cookie_count_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         upgrade_price = await calculate_next_upgrade_price(data, 'oven_cap')
@@ -81,7 +81,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade your oven capacity.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Buy Idle Upgrade", style=discord.ButtonStyle.green, row=0)
+    @discord.ui.button(label="Buy Idle Upgrade", custom_id="idle_upgrade", style=discord.ButtonStyle.green, row=0)
     async def idle_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         idle_upgrade_level = data['idle_upgrade_level']
@@ -100,7 +100,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade your idle upgrade.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Buy Ping Upgrade", style=discord.ButtonStyle.green, row=1)
+    @discord.ui.button(label="Buy Ping Upgrade", custom_id="ping_upgrade", style=discord.ButtonStyle.green, row=1)
     async def ping_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         balance = data['balance']
@@ -133,7 +133,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You have disabled the ping upgrade.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
-    @discord.ui.button(label="Activate Boost", style=discord.ButtonStyle.green, row=1)
+    @discord.ui.button(label="Activate Boost", custom_id="boost_activate", style=discord.ButtonStyle.green, row=1)
     async def boost_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         balance = data['balance']
@@ -149,7 +149,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to activate the boost.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
     
-    @discord.ui.button(label="Upgrade Boost", style=discord.ButtonStyle.green, row=1)
+    @discord.ui.button(label="Upgrade Boost", custom_id="boost_upgrade", style=discord.ButtonStyle.green, row=1)
     async def boost_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         balance = data['balance']
@@ -165,9 +165,10 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade the boost.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
     
-    @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
+    @discord.ui.button(label="", emoji="🔄", custom_id="update_refresh", style=discord.ButtonStyle.secondary, row=1)
     async def refresh_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
+        # print(UpgradeView.is_persistent(UpgradeView(interaction.user.id, data['ping'], data['boost_time'])))
         await interaction.response.edit_message(embed=await make_shop_embed(interaction.user.id, bot), view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
     async def on_timeout(self):
