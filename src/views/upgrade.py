@@ -164,6 +164,11 @@ class UpgradeView(discord.ui.View):
             embed = await make_shop_embed(interaction.user.id, bot)
             embed.add_field(name="You don't have enough cookies to upgrade the boost.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+    
+    @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
+    async def refresh_callback(self, button, interaction):
+        data = await get_data(interaction.user.id)
+        await interaction.response.edit_message(embed=await make_shop_embed(interaction.user.id, bot), view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
     async def on_timeout(self):
         for child in self.children:
