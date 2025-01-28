@@ -1,19 +1,37 @@
 import discord
 from datetime import datetime
-from src.funcs.data import get_data
-from src.funcs.globals import admins, baking_users, gamble_users
+import os
+import re
+from src.funcs.data import get_data, update_balance, update_data
+from src.funcs.globals import admins, baking_users, gamble_users, dev_bots
 
 class Admin(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
         
     @discord.command()
-    async def admin(self, ctx, cmd: str):
+    async def admin(self, ctx, cmd: str, user: discord.User = None):
         if ctx.author.id in admins:
             cmd = cmd.lower()
             if cmd == "rsmsg":
                 await ctx.send("Bot is restarting soon, please wait...")
                 await ctx.respond("Sent", ephemeral=True)
+            elif "balance++" in cmd:
+                if self.bot.user.id in dev_bots:
+                    try:
+                        amount = int(re.search(r'\d+', cmd).group())
+                    except Exception as e:
+                        await ctx.respond(f"error {e}", ephemeral=True)
+                        return
+                    if user:
+                        data = await get_data(user.id)
+                        data = await update_balance(data, amount)
+                        await update_data(data)
+                        await ctx.respond(f"added {amount} cookies to {user.mention}", ephemeral=True)
+                    else:
+                        await ctx.respond("no user specified", ephemeral=True)
+                else:
+                    await ctx.respond("this can't be run on the prod bot", ephemeral=True)
             else:
                 await ctx.respond("Invalid command.", ephemeral=True)
         else:
