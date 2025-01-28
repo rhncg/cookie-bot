@@ -1,7 +1,6 @@
 import discord
 import os
 from dotenv import load_dotenv
-import aiosqlite
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
 
