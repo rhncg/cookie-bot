@@ -1,6 +1,6 @@
 import discord
-import datetime
-import numerize
+from datetime import datetime
+from numerize.numerize import numerize
 from src.funcs.data import get_data, update_balance, update_data
 
 class DropView(discord.ui.View):
