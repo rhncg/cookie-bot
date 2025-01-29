@@ -64,9 +64,8 @@ async def update_idle(data):
         idle_cookies = int(time_elapsed * idle_upgrade)
         data = await update_balance(data, idle_cookies)
         data['last_active'] = datetime.now().timestamp()
-        await update_data(data)
     else:
         data['last_active'] = datetime.now().timestamp()
-
+    
     data['interactions'] += 1
     return data
