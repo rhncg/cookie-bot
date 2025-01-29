@@ -26,6 +26,7 @@ async def try_steal(ctx, user):
         return
     amount = random.randint(1, int(steal_balance * 0.2))
     chance = random.randint(1, 3)
+    self_data['last_steal'] = datetime.now().timestamp()
     if chance == 1:
         self_data = await update_balance(self_data, amount)
         data = await update_balance(data, -amount)
@@ -39,8 +40,6 @@ async def try_steal(ctx, user):
             await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.name}.")
     else:
         await ctx.respond(f"You were caught! You failed to steal any cookies from <@{user.id}>.")
-
-    self_data['last_steal'] = datetime.now().timestamp()
 
     await update_data(data)
     await update_data(self_data)
