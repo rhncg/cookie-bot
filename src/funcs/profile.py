@@ -23,6 +23,7 @@ async def get_profile(ctx, user):
             embed.add_field(name="Bake Speed", value=f"{numerize(bake_speed, 2)} seconds", inline=True)
             embed.add_field(name="Oven Capacity", value=f"{numerize(oven_cap, 2)} cookies", inline=True)
             embed.add_field(name="Idle Rate", value=f"{numerize(idle_upgrade, 2)} cookies per minute", inline=True)
+            embed.add_field(name="Daily Streak", value=data['daily_streak'], inline=True)
             embed.add_field(name="Total Cookies Baked", value=numerize(data['total_cookies'], 2), inline=True)
             embed.set_author(name=f"{user.name}'s profile", icon_url=user.display_avatar.url)
             await ctx.respond(embed=embed)
