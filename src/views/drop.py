@@ -9,7 +9,7 @@ class DropView(discord.ui.View):
         
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green)
     async def claim_callback(self, button, interaction):
-        embed = discord.Embed(title=f"Drop Claimed by {interaction.user.name}", color=0x6b4f37)
+        embed = discord.Embed(title=f"Drop Claimed by {interaction.user.display_name}", color=0x6b4f37)
         data = await get_data(interaction.user.id)
         amount = int(0.1 * data['balance'])
         if amount < 10:
