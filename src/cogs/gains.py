@@ -74,7 +74,6 @@ class Gains(discord.Cog):
             if last_daily == 0:
                 last_daily = datetime.now().timestamp()
             
-            print(datetime.now().timestamp() - last_daily)
             if reward < 5:
                 reward = 5
             

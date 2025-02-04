@@ -1,12 +1,13 @@
 import math
 
 async def calculate_level(xp):
-    return int(math.sqrt(xp) * 0.2)
+    return int(math.log10(xp + 1))
+    
 
 async def get_xp_bar_data(xp):
     level = await calculate_level(xp)
-    current_level_xp = (level * 5) ** 2
-    next_level_xp = ((level + 1) * 5) ** 2
+    current_level_xp = 10 ** level - 1
+    next_level_xp = 10 ** (level + 1) - 1
     progress = (xp - current_level_xp) / (next_level_xp - current_level_xp) * 100
     bar = []
     for i in range(1, 11):

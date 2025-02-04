@@ -40,7 +40,7 @@ async def make_shop_embed(user_id, bot):
     user = await bot.fetch_user(user_id)
 
     embed = discord.Embed(color=0x6b4f37)
-    embed.set_author(name=f"{user.name}'s shop", icon_url=user.display_avatar.url)
+    embed.set_author(name=f"{user.display_name}'s shop", icon_url=user.display_avatar.url)
 
     embed.add_field(name="Bake Speed Upgrade",
                     value=f"Current: {bake_speed} seconds\nNext: {next_bake_upgrade}\nCost: {bake_upgrade_price} cookies",

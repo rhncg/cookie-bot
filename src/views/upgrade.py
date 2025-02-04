@@ -168,7 +168,6 @@ class UpgradeView(discord.ui.View):
     @discord.ui.button(label="", emoji="🔄", custom_id="update_refresh", style=discord.ButtonStyle.secondary, row=1)
     async def refresh_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
-        # print(UpgradeView.is_persistent(UpgradeView(interaction.user.id, data['ping'], data['boost_time'])))
         await interaction.response.edit_message(embed=await make_shop_embed(interaction.user.id, bot), view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
 
     async def on_timeout(self):
