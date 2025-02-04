@@ -25,7 +25,7 @@ async def get_profile(ctx, user):
             embed.add_field(name="Idle Rate", value=f"{numerize(idle_upgrade, 2)} cookies per minute", inline=True)
             embed.add_field(name="Daily Streak", value=data['daily_streak'], inline=True)
             embed.add_field(name="Total Cookies Baked", value=numerize(data['total_cookies'], 2), inline=True)
-            embed.set_author(name=f"{user.name}'s profile", icon_url=user.display_avatar.url)
+            embed.set_author(name=f"{user.display_name}'s profile", icon_url=user.display_avatar.url)
             await ctx.respond(embed=embed)
         except Exception as e:
             await ctx.respond(f"That isn't a valid user. {e}", ephemeral=True)
