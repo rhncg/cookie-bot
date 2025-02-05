@@ -62,7 +62,8 @@ class Admin(discord.Cog):
                                                     f"Total Cookies: {data['total_cookies']}\n"
                                                     f"Boost Time: {data['boost_time']}\n"
                                                     f"Boost Level: {data['boost_level']}\n"
-                                                    f"Steal Ping: {data['steal_ping']}", inline=False)
+                                                    f"Steal Ping: {data['steal_ping']}\n"
+                                                    f"Boost Speed: {data['boost_speed']}", inline=False)
             embed.add_field(name="Current Unix Time", value=f"{datetime.now().timestamp()}", inline=False)
             embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
             await ctx.respond(embed=embed)
