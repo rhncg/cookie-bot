@@ -19,6 +19,7 @@ async def make_shop_embed(user_id, bot):
     oven_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'oven_cap'), 2)
     idle_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'idle_upgrade'), 2)
     boost_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'boost_upgrade'), 2)
+    boost_speed_upgrade_price = numerize(await calculate_next_upgrade_price(data, 'boost_speed'), 2)
     boost_activate_price = numerize(await calculate_next_upgrade_price(data, 'boost_activate'), 2)
 
     try:
@@ -61,8 +62,16 @@ async def make_shop_embed(user_id, bot):
     if data['boost_time'] + 900 < datetime.now().timestamp():
         active = "Inactive (Ready)"
         
+    next_boost_multiplier = await calculate_next_upgrade(data, 'boost_level', False)
+    next_boost_speed = await calculate_next_upgrade(data, 'boost_speed', False)
     
-    embed.add_field(name="Boost", value=f'''{active}\nCurrent Multiplier: {data['boost_level'] * 0.25 + 1}x\nUpgrade to: {(data['boost_level'] + 1) * 0.25 + 1}x\nBuy next level: {boost_upgrade_price} cookies\nActivate boost: {boost_activate_price} cookies''', inline=True)
+    
+    embed.add_field(name="Boost", value=f"{active}\n"
+                                        f"Current Multiplier: {data['boost_level'] * 0.25 + 1}x\n"
+                                        f"Current Time: {data['boost_speed']} minutes\n"
+                                        f"Upgrade multiplier to: {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
+                                        f"Upgrade time to: {next_boost_speed} minutes for {boost_speed_upgrade_price} cookiescookies\n"
+                                        f"Activate boost: {boost_activate_price} cookies", inline=True)
 
 
     if not ping == 0:
@@ -94,6 +103,11 @@ async def calculate_next_upgrade_price(data, upgrade_type):
         if price < 10:
             price = 10
         return price
+    elif upgrade_type == 'boost_speed':
+        base_price = 1000
+        current_level = data['boost_speed'] / 5
+        growth_rate = 1.4
+        
     else:
         return None
 
@@ -107,6 +121,10 @@ async def calculate_next_upgrade(data, upgrade_type, inverse=False):
             return
         elif upgrade_type == 'oven_cap':
             next_upgrade = math.ceil(1.5 * data['oven_cap'])
+        elif upgrade_type == 'boost_level':
+            next_upgrade = (data['boost_level'] + 1) * 0.25 + 1
+        elif upgrade_type == 'boost_speed':
+            next_upgrade = data['boost_speed'] + 5
         else:
             return
         return next_upgrade

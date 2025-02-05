@@ -16,6 +16,15 @@ class OptionsView(discord.ui.View):
             )
         ]
     )
+    
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if interaction.user.id != self.user_id:
+            await interaction.response.send_message(
+                "You cannot use this person's options menu. Please use </options:1332478462354784256> and use the one provided.",
+                ephemeral=True)
+            return False
+        return True
+    
     async def select_callback(self, select, interaction):
         if select.values[0] == "Ping when stolen from":
             data = await get_data(interaction.user.id)
