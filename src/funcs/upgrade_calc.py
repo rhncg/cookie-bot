@@ -70,7 +70,7 @@ async def make_shop_embed(user_id, bot):
                                         f"Current Multiplier: {data['boost_level'] * 0.25 + 1}x\n"
                                         f"Current Time: {data['boost_speed']} minutes\n"
                                         f"Upgrade multiplier to: {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
-                                        f"Upgrade time to: {next_boost_speed} minutes for {boost_speed_upgrade_price} cookiescookies\n"
+                                        f"Upgrade time to: {next_boost_speed} minutes for {boost_speed_upgrade_price} cookies\n"
                                         f"Activate boost: {boost_activate_price} cookies", inline=True)
 
 
