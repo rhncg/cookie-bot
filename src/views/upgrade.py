@@ -166,7 +166,7 @@ class UpgradeView(discord.ui.View):
             embed.add_field(name="You don't have enough cookies to upgrade the boost.", value="", inline=False)
             await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
             
-    @discord.ui.button(label="Upgrade Boost Speed", custom_id="boost_speed", style=discord.ButtonStyle.green, row=2)
+    @discord.ui.button(label="Upgrade Boost Time", custom_id="boost_speed", style=discord.ButtonStyle.green, row=2)
     async def boost_speed_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         balance = data['balance']
@@ -176,7 +176,11 @@ class UpgradeView(discord.ui.View):
             data['xp'] += 5
             await update_data(data)
             embed = await make_shop_embed(interaction.user.id, bot)
-            embed.add_field(name="You have upgraded the boost speed. (+5 xp)", value="", inline=False)
+            embed.add_field(name=f"You have upgraded your boost time to {data['boost_speed']} minutes. (+5 xp)", value="", inline=False)
+        else:
+            embed = await make_shop_embed(interaction.user.id, bot)
+            embed.add_field(name="You don't have enough cookies to upgrade the boost time.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
     
     @discord.ui.button(label="", emoji="🔄", custom_id="update_refresh", style=discord.ButtonStyle.secondary, row=2)
     async def refresh_callback(self, button, interaction):
