@@ -1,4 +1,5 @@
 import discord
+import asyncio
 from datetime import datetime
 from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import bake_speed_upgrades
@@ -6,7 +7,7 @@ from src.funcs.upgrade_calc import calculate_next_upgrade_price, calculate_next_
 from src.bot_instance import bot
 
 class UpgradeView(discord.ui.View):
-    async def __init__(self, user_id, ping, boost_time):
+    def __init__(self, user_id, ping, boost_time):
         super().__init__(timeout=3600)
         self.user_id = user_id
         for child in self.children:
@@ -16,6 +17,10 @@ class UpgradeView(discord.ui.View):
             elif "Ping" in child.label and ping == 2:
                 child.label = "Disable Ping Upgrade"
                 child.style = discord.ButtonStyle.red
+        
+        asyncio.create_task(self.setup(user_id, boost_time))
+     
+    async def setup(self, user_id, boost_time): 
         data = await get_data(user_id)
         for child in self.children:
             if "Activate Boost" in child.label and boost_time + data['boost_speed'] * 60 > datetime.now().timestamp():
