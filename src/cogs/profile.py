@@ -39,7 +39,7 @@ class Profile(discord.Cog):
             embed.add_field(name="Gamble", value="Your gamble is available.", inline=False)
         
         if data['boost_time'] + data['boost_speed'] * 60 > datetime.now().timestamp():
-            active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
+            active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + data['boost_speed'] * 60)}:R>)"
         if data['boost_time'] > datetime.now().timestamp():
             active = f"Active (Boost ends <t:{int(data['boost_time'])}:R>)"
         if data['boost_time'] + data['boost_speed'] * 60 < datetime.now().timestamp():
