@@ -55,11 +55,11 @@ async def make_shop_embed(user_id, bot):
                     value=f"Current: {idle_upgrade} cookies per minute\nNext: {next_idle_upgrade} cookies per minute\nCost: {idle_upgrade_price} cookies",
                     inline=True)
 
-    if data['boost_time'] + 900 > datetime.now().timestamp():
+    if data['boost_time'] + data['boost_speed'] * 60 > datetime.now().timestamp():
         active = f"Inactive (Cooldown ends <t:{int(data['boost_time'] + 900)}:R>)"
     if data['boost_time'] > datetime.now().timestamp():
         active = f"Active (Boost ends <t:{int(data['boost_time'])}:R>)"
-    if data['boost_time'] + 900 < datetime.now().timestamp():
+    if data['boost_time'] + data['boost_speed'] * 60 < datetime.now().timestamp():
         active = "Inactive (Ready)"
         
     next_boost_multiplier = await calculate_next_upgrade(data, 'boost_level', False)
