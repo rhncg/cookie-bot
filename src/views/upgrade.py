@@ -6,7 +6,7 @@ from src.funcs.upgrade_calc import calculate_next_upgrade_price, calculate_next_
 from src.bot_instance import bot
 
 class UpgradeView(discord.ui.View):
-    def __init__(self, user_id, ping, boost_time):
+    async def __init__(self, user_id, ping, boost_time):
         super().__init__(timeout=3600)
         self.user_id = user_id
         for child in self.children:
@@ -16,12 +16,12 @@ class UpgradeView(discord.ui.View):
             elif "Ping" in child.label and ping == 2:
                 child.label = "Disable Ping Upgrade"
                 child.style = discord.ButtonStyle.red
+        data = await get_data(user_id)
         for child in self.children:
-            if "Activate Boost" in child.label and boost_time + 900 > datetime.now().timestamp():
+            if "Activate Boost" in child.label and boost_time + data['boost_speed'] * 60 > datetime.now().timestamp():
                 child.disabled = True
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-
         if interaction.user.id != self.user_id:
             await interaction.response.send_message(
                 "You cannot use this person's shop. Please use </shop:1310001981066313738> and use the one provided.",
@@ -168,15 +168,24 @@ class UpgradeView(discord.ui.View):
             
     @discord.ui.button(label="Upgrade Boost Time", custom_id="boost_speed", style=discord.ButtonStyle.green, row=2)
     async def boost_speed_callback(self, button, interaction):
+        print("button pressed")
         data = await get_data(interaction.user.id)
         balance = data['balance']
+        if await calculate_next_upgrade(data, 'boost_speed') == "MAX":
+            embed = await make_shop_embed(interaction.user.id, bot)
+            embed.add_field(name="You have reached the maximum boost time.", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
+            return
         if balance >= await calculate_next_upgrade_price(data, 'boost_speed'):
             await update_balance(data, -1 * await calculate_next_upgrade_price(data, 'boost_speed'))
-            data['boost_speed'] += await calculate_next_upgrade(data, 'boost_speed')
+            data['boost_speed'] = await calculate_next_upgrade(data, 'boost_speed')
+            print("did math")
             data['xp'] += 5
             await update_data(data)
+            print("updated data")
             embed = await make_shop_embed(interaction.user.id, bot)
             embed.add_field(name=f"You have upgraded your boost time to {data['boost_speed']} minutes. (+5 xp)", value="", inline=False)
+            await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time']))
         else:
             embed = await make_shop_embed(interaction.user.id, bot)
             embed.add_field(name="You don't have enough cookies to upgrade the boost time.", value="", inline=False)

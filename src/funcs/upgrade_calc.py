@@ -64,13 +64,12 @@ async def make_shop_embed(user_id, bot):
         
     next_boost_multiplier = await calculate_next_upgrade(data, 'boost_level', False)
     next_boost_speed = await calculate_next_upgrade(data, 'boost_speed', False)
-    
-    
+
     embed.add_field(name="Boost", value=f"{active}\n"
                                         f"Current Multiplier: {data['boost_level'] * 0.25 + 1}x\n"
                                         f"Current Time: {data['boost_speed']} minutes\n"
-                                        f"Upgrade multiplier to: {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
-                                        f"Upgrade time to: {next_boost_speed} minutes for {boost_speed_upgrade_price} cookies\n"
+                                        f"Upgrade multiplier to {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
+                                        f"{f"Upgrade time to {next_boost_speed} minutes for {boost_speed_upgrade_price} cookies" if next_boost_speed != "MAX" else "Boost time cannot be upgraded further"}\n"
                                         f"Activate boost: {boost_activate_price} cookies", inline=True)
 
 
@@ -104,9 +103,9 @@ async def calculate_next_upgrade_price(data, upgrade_type):
             price = 10
         return price
     elif upgrade_type == 'boost_speed':
-        base_price = 1000
+        base_price = 2000
         current_level = data['boost_speed'] / 5
-        growth_rate = 1.4
+        growth_rate = 7
         
     else:
         return None
@@ -124,7 +123,14 @@ async def calculate_next_upgrade(data, upgrade_type, inverse=False):
         elif upgrade_type == 'boost_level':
             next_upgrade = (data['boost_level'] + 1) * 0.25 + 1
         elif upgrade_type == 'boost_speed':
-            next_upgrade = data['boost_speed'] + 5
+            if data['boost_speed'] + 5 < 15:
+                next_upgrade = data['boost_speed'] + 5
+            elif data['boost_speed'] + 3 < 30:
+                next_upgrade = data['boost_speed'] + 3
+            elif data['boost_speed'] + 1 < 60:
+                next_upgrade = data['boost_speed'] + 1
+            else:
+                next_upgrade = "MAX"
         else:
             return
         return next_upgrade
