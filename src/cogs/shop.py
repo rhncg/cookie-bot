@@ -11,7 +11,7 @@ class Shop(discord.Cog):
     async def shop(self, ctx):
         data = await get_data(ctx.author.id)
         embed = await make_shop_embed(ctx.author.id, self.bot)
-        await ctx.respond(embed=embed, view=UpgradeView(ctx.author.id, data['ping'], data['boost_time']))
+        await ctx.respond(embed=embed, view=UpgradeView(ctx.author.id, data['ping'], data['boost_time'], data['boost_speed']))
 
 def setup(bot):
     bot.add_cog(Shop(bot))
