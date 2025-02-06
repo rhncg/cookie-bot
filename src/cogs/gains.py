@@ -44,7 +44,7 @@ class Gains(discord.Cog):
             amount = balance // 2
 
         if balance < amount:
-            await ctx.respond("You don't have enough cookies to gamble.")
+            await ctx.respond("You don't have enough cookies to gamble that amount.")
             return
         if not amount > 0:
             await ctx.respond("You must gamble a positive amount of cookies.")
