@@ -13,15 +13,15 @@ class UpgradeView(discord.ui.View):
         for child in self.children:
             if isinstance(child, discord.ui.Button):
                 if "Ping" in child.label and ping == 0:
-                    child.label = "Buy Ping Upgrade"
+                    child.label = "Buy Bake Ping"
                     child.style = discord.ButtonStyle.green
                     child.disabled = False
                 if "Ping" in child.label and ping == 1:
-                    child.label = "Enable Ping Upgrade"
+                    child.label = "Enable Ping"
                     child.style = discord.ButtonStyle.green
                     child.disabled = False
                 elif "Ping" in child.label and ping == 2:
-                    child.label = "Disable Ping Upgrade"
+                    child.label = "Disable Ping"
                     child.style = discord.ButtonStyle.red
                     child.disabled = False
                 
@@ -168,7 +168,7 @@ class UpgradeView(discord.ui.View):
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
         
 
-    @discord.ui.button(label="Buy Ping Upgrade", custom_id="ping_upgrade", style=discord.ButtonStyle.green, row=1)
+    @discord.ui.button(label="Buy Bake Ping", custom_id="ping_upgrade", style=discord.ButtonStyle.green, row=1)
     async def ping_upgrade_callback(self, button, interaction):
         data = await get_data(interaction.user.id)
         ping = data['ping']

@@ -8,7 +8,7 @@ class Updates(discord.Cog):
     @discord.command()
     async def updates(self, ctx):
         embed = discord.Embed(title="Updates", color=0x6b4f37)
-        embed.add_field(name="Version", value="2.5", inline=False)
+        embed.add_field(name="Version", value="2.5.1", inline=False)
         embed.add_field(name="Completed (in order of completion)", value="- Buffed Idle Upgrade (higher rate now)\n"
                                                 "- Fixed stealing bug\n"
                                                 "- Boosts are now available\n"
