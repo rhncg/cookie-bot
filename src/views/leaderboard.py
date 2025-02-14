@@ -70,9 +70,10 @@ class LeaderboardView(discord.ui.View):
         
         count = 0
         
-        for i in rows:
-            if i[1] == 0:
-                count += 1
+        for i, row in enumerate(rows):
+            if row[1] == 0:
+                continue
+            count += 1
         
         if count > self.page * 10:
             self.page += 1
