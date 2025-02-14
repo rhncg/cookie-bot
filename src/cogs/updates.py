@@ -19,9 +19,9 @@ class Updates(discord.Cog):
                                                 "- You can now refresh the shop.\n"
                                                 "- Better XP scaling\n"
                                                 "- Boost Duration Upgrade\n"
-                                                "- More compact shop layout", inline=False)
-        embed.add_field(name="Upcoming (in no particular order)", value="- Leaderboard Improvements\n"
-                                                "- Better Gambling\n"
+                                                "- More compact shop layout\n"
+                                                "- Better Leaderboard (Pagination, Jumping to self)", inline=False)
+        embed.add_field(name="Upcoming (in no particular order)", value="- Better Gambling\n"
                                                 "- QOL stuff", inline=False)
         await ctx.respond(embed=embed)
     
