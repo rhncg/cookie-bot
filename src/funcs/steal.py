@@ -37,12 +37,12 @@ async def try_steal(ctx, user):
         if data['steal_ping'] == True:
             await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.mention}.")
         else:
-            await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.name}.")
+            await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.display_name}.")
     else:
         if data['steal_ping'] == True:
             await ctx.respond(f"You were caught! You failed to steal any cookies from {user.mention}.")
         else:
-            await ctx.respond(f"You were caught! You failed to steal any cookies from {user.name}.")
+            await ctx.respond(f"You were caught! You failed to steal any cookies from {user.display_name}.")
 
     await update_data(data)
     await update_data(self_data)

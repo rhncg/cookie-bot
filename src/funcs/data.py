@@ -1,5 +1,4 @@
 from datetime import datetime
-import aiosqlite
 from src.funcs.balance import update_balance
 from src.funcs.db import get_db_connection
 

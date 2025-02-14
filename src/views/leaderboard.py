@@ -9,6 +9,8 @@ class LeaderboardView(discord.ui.View):
         self.ctx = ctx
         self.sort_by_level = False
         self.page = 1
+        
+    # PAGINATION SOON (TM)
 
     @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green)
     async def sort_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
@@ -18,7 +20,7 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         sort = "xp" if self.sort_by_level else "balance"
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page) * 10}")
         rows = await cursor.fetchall()
 
         embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
@@ -33,3 +35,13 @@ class LeaderboardView(discord.ui.View):
                 embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
+        
+    @discord.ui.button(label="", emoji="➡️", style=discord.ButtonStyle.secondary)
+    async def next_callback(self, button, interaction):
+        self.page += 1
+        await interaction.response.edit_message(view=self)
+    
+    @discord.ui.button(label="", emoji="⬅️", style=discord.ButtonStyle.secondary)
+    async def prev_callback(self, button, interaction):
+        self.page -= 1
+        await interaction.response.edit_message(view=self)
