@@ -64,6 +64,7 @@ class LeaderboardView(discord.ui.View):
     async def next_callback(self, button, interaction):
         conn = await get_db_connection()
         cursor = await conn.cursor()
+        sort = "xp" if self.sort_by_level else "balance"
         await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC")
         rows = await cursor.fetchall()
         
