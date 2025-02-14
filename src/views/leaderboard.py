@@ -38,7 +38,8 @@ class LeaderboardView(discord.ui.View):
         
     @discord.ui.button(label="", emoji="⬅️", style=discord.ButtonStyle.secondary)
     async def prev_callback(self, button, interaction):
-        self.page -= 1
+        if self.page > 1:
+            self.page -= 1
         
         conn = await get_db_connection()
         cursor = await conn.cursor()
@@ -61,7 +62,9 @@ class LeaderboardView(discord.ui.View):
 
     @discord.ui.button(label="", emoji="➡️", style=discord.ButtonStyle.secondary)
     async def next_callback(self, button, interaction):
-        self.page += 1
+        count = "SELECT COUNT(*) FROM users"
+        if count > self.page * 10:
+            self.page += 1
         
         conn = await get_db_connection()
         cursor = await conn.cursor()
