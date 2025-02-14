@@ -70,6 +70,8 @@ class LeaderboardView(discord.ui.View):
         
         if count > self.page * 10:
             self.page += 1
+            
+        print(count)
         
         conn = await get_db_connection()
         cursor = await conn.cursor()
