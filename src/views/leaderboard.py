@@ -20,7 +20,7 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         sort = "xp" if self.sort_by_level else "balance"
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
 
         embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
@@ -46,7 +46,7 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         sort = "xp" if self.sort_by_level else "balance"
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
 
         embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
