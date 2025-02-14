@@ -68,6 +68,8 @@ class LeaderboardView(discord.ui.View):
         await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC")
         rows = await cursor.fetchall()
         
+        count = 0
+        
         for i in rows:
             if i[1] == 0:
                 count += 1
