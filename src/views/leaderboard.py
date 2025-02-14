@@ -64,9 +64,12 @@ class LeaderboardView(discord.ui.View):
     async def next_callback(self, button, interaction):
         conn = await get_db_connection()
         cursor = await conn.cursor()
-        await cursor.execute("SELECT COUNT(*) FROM users")
-        count = await cursor.fetchone()
-        count = count[0]
+        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC")
+        rows = await cursor.fetchall()
+        
+        for i in rows:
+            if i[1] == 0:
+                count += 1
         
         if count > self.page * 10:
             self.page += 1
