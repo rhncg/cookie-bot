@@ -65,7 +65,8 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         await cursor.execute("SELECT COUNT(*) FROM users")
-        count = await cursor.fetchone()[0]
+        count = await cursor.fetchone()
+        count = count[0]
         
         if count > self.page * 10:
             self.page += 1
