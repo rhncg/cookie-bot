@@ -29,10 +29,10 @@ class LeaderboardView(discord.ui.View):
                 continue
             if self.sort_by_level:
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             else:
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
         
@@ -53,10 +53,10 @@ class LeaderboardView(discord.ui.View):
                 continue
             if self.sort_by_level:
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             else:
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1}. <@{row[0]}> - {label}", inline=False)
+                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
 
