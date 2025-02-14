@@ -107,8 +107,7 @@ class LeaderboardView(discord.ui.View):
         cursor = await conn.cursor()
         sort = "xp" if self.sort_by_level else "balance"
         user_id = interaction.user.id
-        await cursor.execute(f"SELECT COUNT(*) + 1 AS position FROM users 
-                            WHERE {sort} > (SELECT {sort} FROM users WHERE user_id = {user_id})")
+        await cursor.execute(f"SELECT COUNT(*) + 1 AS position FROM users WHERE {sort} > (SELECT {sort} FROM users WHERE user_id = {user_id})")
         row = await cursor.fetchone()
         position = row[0] if row else None
         if position:
