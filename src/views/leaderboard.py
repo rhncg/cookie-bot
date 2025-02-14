@@ -62,6 +62,8 @@ class LeaderboardView(discord.ui.View):
 
     @discord.ui.button(label="", emoji="➡️", style=discord.ButtonStyle.secondary)
     async def next_callback(self, button, interaction):
+        conn = await get_db_connection()
+        cursor = await conn.cursor()
         await cursor.execute("SELECT COUNT(*) FROM users")
         rows = await cursor.fetchall()
         
