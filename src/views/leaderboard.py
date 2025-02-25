@@ -9,8 +9,6 @@ class LeaderboardView(discord.ui.View):
         self.ctx = ctx
         self.sort_by_level = False
         self.page = 1
-        
-    # PAGINATION SOON (TM)
 
     @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green)
     async def sort_callback(self, button: discord.ui.Button, interaction: discord.Interaction):

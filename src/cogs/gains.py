@@ -77,7 +77,7 @@ class Gains(discord.Cog):
             if reward < 5:
                 reward = 5
             
-            if datetime.now().timestamp() - last_daily < 144000:
+            if datetime.now().timestamp() - last_daily < 172800:
                 data['daily_streak'] += 1
             else:
                 data['daily_streak'] = 0
