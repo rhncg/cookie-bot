@@ -5,7 +5,7 @@ from src.funcs.level import calculate_level
 
 class LeaderboardView(discord.ui.View):
     def __init__(self, ctx):
-        super().__init__()
+        super().__init__(timeout=None)
         self.ctx = ctx
         self.sort_by_level = False
         self.page = 1

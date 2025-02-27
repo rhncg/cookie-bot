@@ -7,7 +7,7 @@ from src.bot_instance import bot
 
 class DropView(discord.ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None)
         self.claimed_users = []
         
     @discord.ui.button(label="Claim", style=discord.ButtonStyle.green)

@@ -7,7 +7,7 @@ from src.funcs.globals import gamble_users
 
 class GambleConfirmationView(discord.ui.View):
     def __init__(self, user_id, amount):
-        super().__init__()
+        super().__init__(timeout=None)
         self.user_id = user_id
         self.amount = amount
 

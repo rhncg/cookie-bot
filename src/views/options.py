@@ -3,7 +3,7 @@ from src.funcs.data import get_data, update_data
 
 class OptionsView(discord.ui.View):
     def __init__(self):
-        super().__init__()
+        super().__init__(timeout=None)
         
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user_id:

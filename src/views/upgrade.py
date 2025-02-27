@@ -8,7 +8,7 @@ from src.bot_instance import bot
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping, boost_time, boost_speed):
-        super().__init__(timeout=3600)
+        super().__init__(timeout=None)
         self.user_id = user_id
         for child in self.children:
             if isinstance(child, discord.ui.Button):
