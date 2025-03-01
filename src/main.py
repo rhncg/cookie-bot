@@ -36,6 +36,12 @@ async def on_ready():
             boost_speed INTEGER DEFAULT 10
         )
         """)
+        await cursor.execute("""
+        CREATE TABLE IF NOT EXISTS quests (
+            user_id INTEGER PRIMARY KEY,
+            bake_quest INTEGER DEFAULT 0
+        )
+        """)
         await conn.commit()
     except Exception as e:
         print(f"Error creating table: {e}")
@@ -48,7 +54,8 @@ cogs_list = [
     'options',
     'profile',
     'shop',
-    'updates'
+    'updates',
+    'quests'
 ]
 
 for cog in cogs_list:

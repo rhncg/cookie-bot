@@ -10,7 +10,7 @@ class Bake(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.command()
+    @discord.command(description="Bake some cookies")
     async def bake(self, ctx):
         user_id = ctx.author.id
         data = await get_data(user_id)

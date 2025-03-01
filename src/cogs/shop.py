@@ -7,7 +7,7 @@ class Shop(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @discord.command()
+    @discord.command(description="View the shop")
     async def shop(self, ctx):
         data = await get_data(ctx.author.id)
         embed = await make_shop_embed(ctx.author.id, self.bot)

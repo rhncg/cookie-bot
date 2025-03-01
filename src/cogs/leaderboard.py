@@ -8,7 +8,7 @@ class Leaderboard(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @discord.command()
+    @discord.command(description="View the leaderboard")
     async def leaderboard(self, ctx):
         data = await get_data(ctx.author.id)
         await ctx.defer()

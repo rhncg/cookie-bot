@@ -10,7 +10,7 @@ class Admin(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @discord.command()
+    @discord.command(description="nuh uh")
     async def admin(self, ctx, cmd: str, user: discord.User = None):
         if ctx.author.id in admins:
             cmd = cmd.lower()

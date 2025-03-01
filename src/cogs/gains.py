@@ -12,7 +12,7 @@ class Gains(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
     
-    @discord.command()
+    @discord.command(description="Steal cookies from other people")
     async def steal(self, ctx, user: discord.User):
         await try_steal(ctx, user)
         
@@ -20,7 +20,7 @@ class Gains(discord.Cog):
     async def user_steal(self, ctx, user: discord.Member):
         await try_steal(ctx, user)
     
-    @discord.command()
+    @discord.command(description="Gamble your cookies")
     async def gamble(self, ctx, quick_selection: discord.Option(str, choices=['all', 'half']) = None, amount: int = None): # type: ignore
         data = await get_data(ctx.author.id)
         last_gamble = data['last_gamble']
@@ -60,7 +60,7 @@ class Gains(discord.Cog):
         embed.add_field(name="This action cannot be undone.", value="", inline=False)
         await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
         
-    @discord.command()
+    @discord.command(description="Claim your daily reward")
     async def daily(self, ctx):
         data = await get_data(ctx.author.id)
         if datetime.now().timestamp() - data['last_daily'] < 57600:

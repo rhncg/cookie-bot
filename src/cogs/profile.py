@@ -9,7 +9,7 @@ class Profile(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    @discord.command()
+    @discord.command(description="View your or someone else's profile")
     async def profile(self, ctx, user: discord.User = None):
         if user is None:
             user = ctx.author
@@ -19,7 +19,7 @@ class Profile(discord.Cog):
     async def user_profile(self, ctx, user: discord.Member):
         await get_profile(ctx, user)
             
-    @discord.command()
+    @discord.command(description="View cooldowns for multiple commands")
     async def cooldowns(self, ctx):
         data = await get_data(ctx.author.id)
         embed = discord.Embed(title="Cooldowns", color=0x6b4f37)
@@ -49,7 +49,7 @@ class Profile(discord.Cog):
 
         await ctx.respond(embed=embed)
             
-    @discord.command()
+    @discord.command(description="View your balance")
     async def balance(self, ctx):
         data = await get_data(ctx.author.id)
         balance = data['balance']
