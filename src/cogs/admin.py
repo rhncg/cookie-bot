@@ -46,7 +46,7 @@ class Admin(discord.Cog):
         else:
             await ctx.respond("You are not an admin.", ephemeral=True)
     
-    @discord.command()
+    @discord.command(description="View debug info")
     async def debug(self, ctx, user: discord.User = None):
         if user is None:
             user = ctx.author
@@ -79,7 +79,7 @@ class Admin(discord.Cog):
         else:
             await ctx.respond("Only admins can use this command.", ephemeral=True)
             
-    @discord.command()
+    @discord.command(description="View the bot's latency")
     async def ping(self, ctx):
         await ctx.respond(f'Pong! {round(self.bot.latency * 1000)}ms')
         

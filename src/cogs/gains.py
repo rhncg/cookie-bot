@@ -67,7 +67,7 @@ class Gains(discord.Cog):
             await ctx.respond(
                 f"You have already claimed your daily reward.\nYou can claim your next daily reward <t:{int(data['last_daily'] + 57600)}:R>.", ephemeral=True)
         else:
-            reward = int(0.02 * (1 + data['daily_streak']/10) * data['balance'])
+            reward = int(0.02 * (1 + data['daily_streak']/5) * data['balance'])
             
             last_daily = data['last_daily']
             
