@@ -15,7 +15,7 @@ class Updates(discord.Cog):
                                                 "- Added options menu\n"
                                                 "- Boosts are cheaper to activate now\n"
                                                 "- Drops\n"
-                                                "- You can now right click a user and go to \"Apps\" to steal from them orview their profile.\n"
+                                                "- You can now right click a user and go to \"Apps\" to steal from them or view their profile.\n"
                                                 "- You can now refresh the shop.\n"
                                                 "- Better XP scaling\n"
                                                 "- Boost Duration Upgrade\n"

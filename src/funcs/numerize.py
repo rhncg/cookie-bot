@@ -7,5 +7,5 @@ def numerize(value, decimals=2):
         num /= 1000.0
         index += 1
     
-    format_string = f"{{:.{decimals}f}}{suffixes[index]}"
-    return format_string.format(num)
+    formatted_num = f"{num:.{decimals}f}".rstrip('0').rstrip('.')
+    return f"{formatted_num}{suffixes[index]}"
