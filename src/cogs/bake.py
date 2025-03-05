@@ -1,7 +1,7 @@
 import discord
 from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import baking_users
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from src.funcs.drops import try_drop
 from datetime import datetime
 import asyncio

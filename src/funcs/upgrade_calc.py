@@ -1,6 +1,6 @@
 import discord
 import math
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from datetime import datetime
 from src.funcs.data import get_data
 from src.bot_instance import bot

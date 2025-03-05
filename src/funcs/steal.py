@@ -1,7 +1,7 @@
 import discord
 import random
 from datetime import datetime
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from src.funcs.data import get_data, update_data, update_balance
 
 async def try_steal(ctx, user):

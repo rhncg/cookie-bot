@@ -1,5 +1,5 @@
 import discord
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from src.funcs.data import get_data
 from src.funcs.db import get_db_connection
 from src.views.leaderboard import LeaderboardView

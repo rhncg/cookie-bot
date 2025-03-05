@@ -6,7 +6,7 @@
 # import asyncio
 # from datetime import datetime
 # import random
-# from numerize.numerize import numerize
+# from funcs.numerize import numerize
 
 # async def get_db_connection():
 #     if not hasattr(bot, 'db_conn'):

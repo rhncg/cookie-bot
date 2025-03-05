@@ -1,5 +1,5 @@
 import discord
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from datetime import datetime
 from src.funcs.data import get_data
 from src.funcs.level import get_xp_bar_data, calculate_level

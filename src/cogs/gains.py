@@ -1,6 +1,6 @@
 import discord
 from datetime import datetime
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 import random
 from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import gamble_users

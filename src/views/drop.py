@@ -1,7 +1,7 @@
 import discord
 import asyncio
 from datetime import datetime
-from numerize.numerize import numerize
+from funcs.numerize import numerize
 from src.funcs.data import get_data, update_balance, update_data
 from src.bot_instance import bot
 
