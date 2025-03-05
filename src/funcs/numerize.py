@@ -1,4 +1,4 @@
-def numerize(value):
+def numerize(value, decimals=2):
     suffixes = ['', 'K', 'M', 'B', 'T', 'Qu', 'Qi', 'Sx']
     num = float(value)
     index = 0
@@ -7,4 +7,5 @@ def numerize(value):
         num /= 1000.0
         index += 1
     
-    return f"{num:.2f}{suffixes[index]}"
+    format_string = f"{{:.{decimals}f}}{suffixes[index]}"
+    return format_string.format(num)
