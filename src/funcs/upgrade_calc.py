@@ -35,8 +35,8 @@ async def make_shop_embed(user_id, bot):
     except IndexError:
         next_cookie_upgrade = "Max Level Reached"
 
-    idle_upgrade = numerize(round(1.25 ** (idle_upgrade_level - 1) - 1, 1), 2)
-    next_idle_upgrade = numerize(round((1.25 ** idle_upgrade_level) - 1, 1), 2)
+    idle_upgrade = numerize(round(1.2 ** (idle_upgrade_level - 1) - 1, 1), 2)
+    next_idle_upgrade = numerize(round((1.2 ** idle_upgrade_level) - 1, 1), 2)
 
     user = await bot.fetch_user(user_id)
 
