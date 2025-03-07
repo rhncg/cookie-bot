@@ -5,6 +5,7 @@ from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import bake_speed_upgrades
 from src.funcs.upgrade_calc import calculate_next_upgrade_price, calculate_next_upgrade, make_shop_embed
 from src.bot_instance import bot
+from src.funcs.numerize import numerize
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping, boost_time, boost_speed):
@@ -98,7 +99,7 @@ class UpgradeView(discord.ui.View):
                     data['xp'] += 5
                     await update_data(data)
                     embed = await make_shop_embed(interaction.user.id, bot)
-                    embed.add_field(name=f'Your oven capacity has been upgraded to {data["oven_cap"]} cookies (+5 xp)', value="",
+                    embed.add_field(name=f'Your oven capacity has been upgraded to {numerize(data["oven_cap"])} cookies (+5 xp)', value="",
                                     inline=False)
                     await interaction.response.edit_message(embed=embed,
                                                             view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
@@ -122,7 +123,7 @@ class UpgradeView(discord.ui.View):
                 data['xp'] += 5
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
-                embed.add_field(name=f'Your idle upgrade has been upgraded to level {data["idle_upgrade_level"]} (+5 xp)',
+                embed.add_field(name=f'Your idle upgrade has been upgraded to level {numerize(data["idle_upgrade_level"])} (+5 xp)',
                                 value="", inline=False)
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
             else:
@@ -139,11 +140,11 @@ class UpgradeView(discord.ui.View):
                 data['xp'] += 5
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
-                embed.add_field(name="You have upgraded the boost. (+5 xp)", value="", inline=False)
+                embed.add_field(name="You have upgraded your boost. (+5 xp)", value="", inline=False)
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
             else:
                 embed = await make_shop_embed(interaction.user.id, bot)
-                embed.add_field(name="You don't have enough cookies to upgrade the boost.", value="", inline=False)
+                embed.add_field(name="You don't have enough cookies to upgrade your boost.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
   
         elif select.values[0] == "Upgrade Boost Time":
@@ -164,7 +165,7 @@ class UpgradeView(discord.ui.View):
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
             else:
                 embed = await make_shop_embed(interaction.user.id, bot)
-                embed.add_field(name="You don't have enough cookies to upgrade the boost time.", value="", inline=False)
+                embed.add_field(name="You don't have enough cookies to upgrade your boost time.", value="", inline=False)
                 await interaction.response.edit_message(embed=embed, view=UpgradeView(interaction.user.id, data['ping'], data['boost_time'], data['boost_speed']))
         
 
