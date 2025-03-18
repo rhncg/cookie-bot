@@ -28,7 +28,7 @@ class Bake(discord.Cog):
         new_time = f'<t:{int(current_time + bake_speed)}:R>'
 
         baking_users[user_id] = True
-        bake_message = await ctx.respond(f'You started baking {numerize(oven_cap, 2)} cookies. It will be done {new_time}', delete_after=bake_speed+5)
+        bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookies**. It will be done {new_time}', delete_after=bake_speed+5)
 
         await update_data(data)
 
@@ -42,7 +42,9 @@ class Bake(discord.Cog):
             boost = data['boost_level'] * 0.25 + 1
         else:
             boost = 1
-        await bake_message.edit(content=f'You baked {numerize(oven_cap * boost, 2)} cookies! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
+            
+        s = "s" if oven_cap * boost != 1 else "" 
+        await bake_message.edit(content=f'You baked **{numerize(oven_cap * boost, 2)} cookie{s}**! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
 
         ping = data['ping']
         if ping == 2:

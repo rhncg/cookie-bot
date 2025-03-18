@@ -45,5 +45,5 @@ class GambleConfirmationView(discord.ui.View):
         if interaction.user.id != self.user_id:
             await interaction.response.send_message("You cannot cancel this person's gamble.", ephemeral=True)
             return
-        await interaction.response.edit_message(content="Gamble canceled.", embed=None, view=None)
+        await interaction.response.edit_message(content="**Gamble canceled.**", embed=None, view=None)
         gamble_users.remove(interaction.user.id)

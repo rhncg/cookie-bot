@@ -89,7 +89,7 @@ class Gains(discord.Cog):
                 boost = data['boost_level'] * 0.25 + 1
             else:
                 boost = 1
-            await ctx.respond(f"You have claimed your daily reward of {numerize(reward * boost, 2)} cookies. You're on a {data['daily_streak']} day streak. You now have {numerize(data['balance'], 2)} cookies.")
+            await ctx.respond(f"You have claimed your daily reward of **{numerize(reward * boost, 2)} cookies**. You're on a {data['daily_streak']} day streak. You now have {numerize(data['balance'], 2)} cookies.")
     
 
 def setup(bot):
