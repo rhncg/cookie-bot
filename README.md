@@ -1,1 +1,1 @@
-funny discord cookie bot
+cookie bot
