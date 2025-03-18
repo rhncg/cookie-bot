@@ -29,15 +29,15 @@ class GambleConfirmationView(discord.ui.View):
             else:
                 boost = 1
             await interaction.response.edit_message(
-                content=f"You gambled {numerize(self.amount, 2)} cookies and won {numerize(gamble_result * boost, 2)} cookies! Your new balance is {numerize(balance, 2)}.",
+                content=f"You gambled **{numerize(self.amount, 2)} cookies** and won **{numerize(gamble_result * boost, 2)} cookies**! Your new balance is **{numerize(balance, 2)} cookies**.",
                 embed=None, view=None)
         elif gamble_result < 0:
             await interaction.response.edit_message(
-                content=f"You gambled {numerize(self.amount, 2)} cookies and lost {numerize(abs(gamble_result), 2)} cookies. Your new balance is {numerize(balance, 2)}.",
+                content=f"You gambled **{numerize(self.amount, 2)} cookies** and lost **{numerize(abs(gamble_result), 2)} cookies**. Your new balance is **{numerize(balance, 2)} cookies**.",
                 embed=None, view=None)
         else:
             await interaction.response.edit_message(
-                content=f"You gambled {numerize(self.amount, 2)} cookies and ended up with the same amount. Your balance is still {numerize(balance, 2)}.",
+                content=f"You gambled **{numerize(self.amount, 2)} cookies** and ended up with the same amount. Your balance is still **{numerize(balance, 2)}. cookies**.",
                 embed=None, view=None)
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
