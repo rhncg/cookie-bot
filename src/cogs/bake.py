@@ -44,7 +44,7 @@ class Bake(discord.Cog):
             boost = 1
             
         s = "s" if oven_cap * boost != 1 else "" 
-        await bake_message.edit(content=f'You baked **{numerize(oven_cap * boost, 2)} cookie{s}**! Your new balance is {numerize(data["balance"], 2)}. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
+        await bake_message.edit(content=f'You baked **{numerize(oven_cap * boost, 2)} cookie{s}**! Your new balance is **{numerize(data["balance"], 2)} cookies**. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
 
         ping = data['ping']
         if ping == 2:
