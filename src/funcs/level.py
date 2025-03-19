@@ -12,9 +12,20 @@ async def get_xp_bar_data(xp):
     bar = []
     for i in range(1, 11):
         if i * 10 <= round(progress / 10) * 10:
-            bar.append("⬜")
+            if i == 1:
+                bar.append("<:left_cap_full:1351715389163311185>")
+            elif i == 10:
+                bar.append("<:right_cap_full:1351715416388407306>")
+            else:
+                bar.append("<:mid_full:1351715402765566057>")
         else:
-            bar.append("⬛")
+            if i == 1:
+                bar.append("<:left_cap_empty:1352053631230152765>")
+            elif i == 10:
+                bar.append("<:right_cap_empty:1352053652222775357>")
+            else:
+                bar.append("<:mid_empty:1352053641665708083>")
+
     bar.append(f" ({progress:.0f}%)")
     bar = "".join(bar)
     return [current_level_xp, next_level_xp, progress, bar]
