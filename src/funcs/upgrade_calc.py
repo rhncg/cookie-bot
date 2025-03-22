@@ -107,7 +107,7 @@ async def calculate_next_upgrade_price(data, upgrade_type):
     elif upgrade_type == 'boost_speed':
         base_price = 2000
         current_level = data['boost_speed'] / 5
-        growth_rate = 7
+        growth_rate = 8
         
     else:
         return None

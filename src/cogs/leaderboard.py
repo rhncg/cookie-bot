@@ -21,7 +21,7 @@ class Leaderboard(discord.Cog):
 
         await cursor.execute(query)
         rows = await cursor.fetchall()
-        embed = discord.Embed(title="Leaderboard", color=0x6b4f37)
+        embed = discord.Embed(title="Cookies Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
