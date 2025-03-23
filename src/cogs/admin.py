@@ -5,7 +5,6 @@ import re
 from src.funcs.data import get_data, update_balance, update_data
 from src.funcs.globals import admins, baking_users, gamble_users, dev_bots, active_channels
 from src.funcs.drops import try_drop
-from funcs.globals import active_channels
 from bot_instance import bot
 
 class Admin(discord.Cog):
@@ -26,8 +25,7 @@ class Admin(discord.Cog):
             if cmd == "rsmsg":
                 channels = []
                 
-                for channel_id in active_channels.keys():
-                    channel = bot.get_channel(channel_id)
+                for channel in active_channels.keys():
                     await channel.send("Bot is restarting soon, please wait...")
                     channels.append(channel)
                 
