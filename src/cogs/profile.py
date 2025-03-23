@@ -4,6 +4,7 @@ from datetime import datetime
 from src.funcs.data import get_data
 from src.funcs.level import get_xp_bar_data, calculate_level
 from src.funcs.profile import get_profile
+from funcs.log_server import log_active
 
 class Profile(discord.Cog):
     def __init__(self, bot):
@@ -11,16 +12,21 @@ class Profile(discord.Cog):
         
     @discord.command(description="View your or someone else's profile")
     async def profile(self, ctx, user: discord.User = None):
+        await log_active(ctx)
+        
         if user is None:
             user = ctx.author
         await get_profile(ctx, user)
     
     @discord.user_command(name="Profile")
     async def user_profile(self, ctx, user: discord.Member):
+        await log_active(ctx)
         await get_profile(ctx, user)
             
     @discord.command(description="View cooldowns for multiple commands")
     async def cooldowns(self, ctx):
+        await log_active(ctx)
+        
         data = await get_data(ctx.author.id)
         embed = discord.Embed(title="Cooldowns", color=0x6b4f37)
         if datetime.now().timestamp() - data['last_daily'] < 57600:
@@ -51,6 +57,8 @@ class Profile(discord.Cog):
             
     @discord.command(description="View your balance")
     async def balance(self, ctx):
+        await log_active(ctx)
+        
         data = await get_data(ctx.author.id)
         balance = data['balance']
         await ctx.respond(f'You have {balance} cookies.')

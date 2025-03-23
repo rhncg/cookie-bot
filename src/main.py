@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
+from src.funcs.log_server import check_active
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -45,6 +46,8 @@ async def on_ready():
         await conn.commit()
     except Exception as e:
         print(f"Error creating table: {e}")
+        
+    await check_active()
 
 cogs_list = [
     'admin',

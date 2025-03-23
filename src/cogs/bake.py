@@ -4,6 +4,7 @@ from src.funcs.globals import baking_users
 from funcs.numerize import numerize
 from src.funcs.drops import try_drop
 from datetime import datetime
+from funcs.log_server import log_active
 import asyncio
 
 class Bake(discord.Cog):
@@ -12,6 +13,8 @@ class Bake(discord.Cog):
 
     @discord.command(description="Bake some cookies")
     async def bake(self, ctx):
+        await log_active(ctx)
+        
         user_id = ctx.author.id
         data = await get_data(user_id)
         bake_speed = data['bake_speed']

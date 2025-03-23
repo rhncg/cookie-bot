@@ -3,20 +3,36 @@ from datetime import datetime
 import os
 import re
 from src.funcs.data import get_data, update_balance, update_data
-from src.funcs.globals import admins, baking_users, gamble_users, dev_bots
+from src.funcs.globals import admins, baking_users, gamble_users, dev_bots, active_channels
 from src.funcs.drops import try_drop
+from funcs.globals import active_channels
+from bot_instance import bot
 
 class Admin(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
+        
+    '''
+    Admin Commands:
+    - rsmsg
+    - balance++{amount} (only dev bot)
+    - drop (only dev bot)
+    '''
         
     @discord.command(description="nuh uh")
     async def admin(self, ctx, cmd: str, user: discord.User = None):
         if ctx.author.id in admins:
             cmd = cmd.lower()
             if cmd == "rsmsg":
-                await ctx.send("Bot is restarting soon, please wait...")
-                await ctx.respond("Sent", ephemeral=True)
+                channels = []
+                
+                for channel_id in active_channels.keys():
+                    channel = bot.get_channel(channel_id)
+                    await channel.send("Bot is restarting soon, please wait...")
+                    channels.append(channel)
+                
+                await ctx.respond(f"Sent in {len(channels)} channels", ephemeral=True)
+                
             elif "balance++" in cmd:
                 if self.bot.user.id in dev_bots:
                     try:
@@ -33,6 +49,7 @@ class Admin(discord.Cog):
                         await ctx.respond("no user specified", ephemeral=True)
                 else:
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
+                    
             elif cmd == "drop":
                 if self.bot.user.id in dev_bots:
                     try:
@@ -75,6 +92,7 @@ class Admin(discord.Cog):
                                                     f"Boost Speed: {data['boost_speed']}", inline=False)
             embed.add_field(name="Current Unix Time", value=f"{datetime.now().timestamp()}", inline=False)
             embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
+            embed.add_field(name="Active Channels", value=f"{active_channels}", inline=False)
             await ctx.respond(embed=embed)
         else:
             await ctx.respond("Only admins can use this command.", ephemeral=True)

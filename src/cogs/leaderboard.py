@@ -3,6 +3,7 @@ from funcs.numerize import numerize
 from src.funcs.data import get_data
 from src.funcs.db import get_db_connection
 from src.views.leaderboard import LeaderboardView
+from funcs.log_server import log_active
 
 class Leaderboard(discord.Cog):
     def __init__(self, bot):
@@ -10,6 +11,8 @@ class Leaderboard(discord.Cog):
     
     @discord.command(description="View the leaderboard")
     async def leaderboard(self, ctx):
+        await log_active(ctx)
+        
         data = await get_data(ctx.author.id)
         await ctx.defer()
         conn = await get_db_connection()

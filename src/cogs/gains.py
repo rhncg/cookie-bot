@@ -6,6 +6,7 @@ from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import gamble_users
 from src.funcs.steal import try_steal
 from src.views.gamble import GambleConfirmationView
+from funcs.log_server import log_active
 
 
 class Gains(discord.Cog):
@@ -14,14 +15,18 @@ class Gains(discord.Cog):
     
     @discord.command(description="Steal cookies from other people")
     async def steal(self, ctx, user: discord.User):
+        await log_active(ctx)
         await try_steal(ctx, user)
         
     @discord.user_command(name="Steal")
     async def user_steal(self, ctx, user: discord.Member):
+        await log_active(ctx)
         await try_steal(ctx, user)
     
     @discord.command(description="Gamble your cookies")
     async def gamble(self, ctx, quick_selection: discord.Option(str, choices=['all', 'half']) = None, amount: int = None): # type: ignore
+        await log_active(ctx)
+        
         data = await get_data(ctx.author.id)
         last_gamble = data['last_gamble']
         balance = data['balance']
@@ -62,6 +67,8 @@ class Gains(discord.Cog):
         
     @discord.command(description="Claim your daily reward")
     async def daily(self, ctx):
+        await log_active(ctx)
+        
         data = await get_data(ctx.author.id)
         if datetime.now().timestamp() - data['last_daily'] < 57600:
             await ctx.respond(
