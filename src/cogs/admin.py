@@ -31,6 +31,12 @@ class Admin(discord.Cog):
                 
                 await ctx.respond(f"Sent in {len(channels)} channels", ephemeral=True)
                 
+            elif cmd == "remsg":
+                for channel in active_channels.keys():
+                    await channel.send("Bot has finished restarting!")
+                
+                await ctx.respond("Sent", ephemeral=True)
+                
             elif "balance++" in cmd:
                 if self.bot.user.id in dev_bots:
                     try:
