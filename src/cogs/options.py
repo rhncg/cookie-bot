@@ -8,7 +8,7 @@ class Options(discord.Cog):
     @discord.command(description="Change your options")
     async def options(self, ctx):
         embed = await make_options_embed(ctx.author.id)
-        await ctx.respond(embed=embed, view=OptionsView())
+        await ctx.respond(embed=embed, view=OptionsView(ctx.author.id))
         
 def setup(bot):
     bot.add_cog(Options(bot))
