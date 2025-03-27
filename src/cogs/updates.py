@@ -22,7 +22,8 @@ class Updates(discord.Cog):
                                                 "- More compact shop layout\n"
                                                 "- Better Leaderboard (Pagination, Jumping to self)\n"
                                                 "- Made better number numerizer\n"
-                                                "- Leaderboard Sort Rework", inline=False)
+                                                "- Leaderboard Sort Rework\n"
+                                                "- You can now disable the gamble confirmation window", inline=False)
         embed.add_field(name="Upcoming (in no particular order)", value="- Better Gambling\n"
                                                 "- Quests\n"
                                                 "- QOL stuff", inline=False)

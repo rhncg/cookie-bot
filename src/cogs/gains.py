@@ -63,8 +63,34 @@ class Gains(discord.Cog):
         embed = discord.Embed(title=f"Are you sure you want to gamble {numerize(amount, 2)} cookies?", color=0x6b4f37)
         embed.add_field(name=f"You can either win or lose up to {numerize(amount, 2)} cookies.", value="", inline=False)
         embed.add_field(name="This action cannot be undone.", value="", inline=False)
-        await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
         
+        if data['options']['gamble_confirmation'] == True:
+            await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
+        else:
+            data = await get_data(ctx.author.id)
+            gamble_result = random.randint(-1 * int(amount), int(amount))
+            data = await update_balance(data, gamble_result)
+            data['last_gamble'] = datetime.now().timestamp()
+            balance = data['balance']
+            await update_data(data)
+            gamble_users.remove(ctx.user.id)
+            if gamble_result > 0:
+                if data['boost_time'] > datetime.now().timestamp():
+                    boost = data['boost_level'] * 0.25 + 1
+                else:
+                    boost = 1
+                await ctx.respond(
+                    content=f"You gambled **{numerize(amount, 2)} cookies** and won **{numerize(gamble_result * boost, 2)} cookies**! You now have **{numerize(balance, 2)} cookies**.",
+                    embed=None, view=None)
+            elif gamble_result < 0:
+                await ctx.respond(
+                    content=f"You gambled **{numerize(amount, 2)} cookies** and lost **{numerize(abs(gamble_result), 2)} cookies**. You now have **{numerize(balance, 2)} cookies**.",
+                    embed=None, view=None)
+            else:
+                await ctx.respond(
+                    content=f"You gambled **{numerize(amount, 2)} cookies** and ended up with the same amount. Your balance is still **{numerize(balance, 2)}. cookies**.",
+                    embed=None, view=None)
+            
     @discord.command(description="Claim your daily reward")
     async def daily(self, ctx):
         await log_active(ctx)

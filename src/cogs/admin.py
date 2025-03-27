@@ -19,7 +19,7 @@ class Admin(discord.Cog):
     '''
         
     @discord.command(description="nuh uh")
-    async def admin(self, ctx, cmd: str, user: discord.User = None):
+    async def admin(self, ctx, cmd: str, user: discord.User = None, index: str = None, set = None):
         if ctx.author.id in admins:
             cmd = cmd.lower()
             if cmd == "rsmsg":
@@ -44,13 +44,13 @@ class Admin(discord.Cog):
                     except Exception as e:
                         await ctx.respond(f"error {e}", ephemeral=True)
                         return
-                    if user:
-                        data = await get_data(user.id)
-                        data = await update_balance(data, amount)
-                        await update_data(data)
-                        await ctx.respond(f"added {amount} cookies to {user.mention}", ephemeral=True)
-                    else:
-                        await ctx.respond("no user specified", ephemeral=True)
+                    if not user:
+                        user = ctx.author
+
+                    data = await get_data(user.id)
+                    data = await update_balance(data, amount)
+                    await update_data(data)
+                    await ctx.respond(f"added {amount} cookies to {user.mention}", ephemeral=True)
                 else:
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
                     
@@ -62,6 +62,18 @@ class Admin(discord.Cog):
                         await ctx.respond(f"error {e}", ephemeral=True)
                 else:
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
+                    
+            elif cmd == "md":
+                if self.bot.user.id in dev_bots:
+                    if not user:
+                        user = ctx.author
+                    data = await get_data(user.id)
+                    data[index] = set
+                    await update_data(data)
+                    await ctx.respond(f"set {index} to {set}", ephemeral=True)
+                else:
+                    await ctx.respond("this can't be run on the prod bot", ephemeral=True)
+            
             else:
                 await ctx.respond("Invalid command.", ephemeral=True)
         else:

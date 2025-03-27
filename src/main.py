@@ -34,7 +34,8 @@ async def on_ready():
             boost_time INTEGER DEFAULT 0,
             boost_level INTEGER DEFAULT 1,
             steal_ping BOOLEAN DEFAULT True,
-            boost_speed INTEGER DEFAULT 10
+            boost_speed INTEGER DEFAULT 10,
+            options TEXT DEFAULT '{"steal_ping": true, "gamble_confirmation": true}'
         )
         """)
         await cursor.execute("""
