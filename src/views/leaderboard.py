@@ -10,7 +10,7 @@ class LeaderboardView(discord.ui.View):
         self.sort = "Cookies"
         self.page = 1
 
-    @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green)
+    @discord.ui.button(label="Sort by Level", style=discord.ButtonStyle.green, row=1)
     async def sort_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
         if self.sort == "Streak":
             self.sort = "Cookies"
@@ -52,7 +52,7 @@ class LeaderboardView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
         
-    @discord.ui.button(label="", emoji="⬅️", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="", emoji="⬅️", style=discord.ButtonStyle.secondary, row=0)
     async def prev_callback(self, button, interaction):
         if self.page > 1:
             self.page -= 1
@@ -87,7 +87,7 @@ class LeaderboardView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
 
-    @discord.ui.button(label="", emoji="➡️", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="", emoji="➡️", style=discord.ButtonStyle.secondary, row=0)
     async def next_callback(self, button, interaction):
         conn = await get_db_connection()
         cursor = await conn.cursor()
@@ -135,7 +135,7 @@ class LeaderboardView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
         
-    @discord.ui.button(label="", emoji="👤", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="", emoji="👤", style=discord.ButtonStyle.secondary, row=0)
     async def jump_to_profile(self, button, interaction):
         conn = await get_db_connection()
         cursor = await conn.cursor()
@@ -177,7 +177,7 @@ class LeaderboardView(discord.ui.View):
 
         await interaction.response.edit_message(embed=embed, view=self)
     
-    @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary)
+    @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
     async def refresh_callback(self, button, interaction):
         if self.sort == "Level":
             sort = "xp"
