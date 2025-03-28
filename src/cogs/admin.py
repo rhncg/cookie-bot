@@ -127,11 +127,9 @@ class Admin(discord.Cog):
                     conn = await get_db_connection()
                     cursor = await conn.cursor()
 
-                    # Drop the existing table
                     await cursor.execute("DROP TABLE IF EXISTS users")
                     await conn.commit()
 
-                    # Recreate the table
                     await cursor.execute("""
                         CREATE TABLE users (
                             user_id INTEGER PRIMARY KEY,

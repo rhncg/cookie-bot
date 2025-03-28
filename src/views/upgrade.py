@@ -25,13 +25,12 @@ class UpgradeView(discord.ui.View):
                     child.label = "Disable Ping"
                     child.style = discord.ButtonStyle.red
                     child.disabled = False
-                
-        for child in self.children:
-            if isinstance(child, discord.ui.Button):
+            
                 if "Activate Boost" in child.label and boost_time + boost_speed * 60 > datetime.now().timestamp():
                     child.disabled = True
                 elif "Activate Boost" in child.label:
                     child.disabled = False
+            
 
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
         if interaction.user.id != self.user_id:
