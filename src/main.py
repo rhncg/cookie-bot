@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
 from src.funcs.log_server import check_active
+from funcs.globals import version
 
 load_dotenv()
 token = os.getenv('TOKEN')
@@ -11,7 +12,7 @@ token = os.getenv('TOKEN')
 @bot.event
 async def on_ready():
     await bot.change_presence(activity=discord.CustomActivity(name="cookies + gambling = profit"))
-    print(f'Logged in as {bot.user} (ID: {bot.user.id})')
+    print(f'Bot is ready (v{version})')
     try:
         conn = await get_db_connection()
         cursor = await conn.cursor()

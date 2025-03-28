@@ -1,11 +1,12 @@
 import discord
 from datetime import datetime
 import os
+import sys
+import subprocess
 import re
 from src.funcs.data import get_data, update_balance, update_data
 from src.funcs.globals import admins, baking_users, gamble_users, dev_bots, active_channels
 from src.funcs.drops import try_drop
-from bot_instance import bot
 
 class Admin(discord.Cog):
     def __init__(self, bot):
@@ -73,6 +74,21 @@ class Admin(discord.Cog):
                     await ctx.respond(f"set {index} to {set}", ephemeral=True)
                 else:
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
+                    
+            elif cmd == "restart":
+                await ctx.respond("restarting...", ephemeral=True)
+            
+                process = subprocess.run(['git', 'pull'], capture_output=True, text=True)
+                
+                print(process.stdout)
+                print(process.stderr)
+                
+                if process.returncode != 0:
+                    await ctx.respond("git pull failed", ephemeral=True)
+                    return
+                
+                python = sys.executable
+                os.execv(python, [python, "-m", "main"])
             
             else:
                 await ctx.respond("Invalid command.", ephemeral=True)
@@ -116,62 +132,6 @@ class Admin(discord.Cog):
     @discord.command(description="View the bot's latency")
     async def ping(self, ctx):
         await ctx.respond(f'Pong! {round(self.bot.latency * 1000)}ms')
-        
-    '''
-    print(bot.user.id)
-    if bot.user.id == 1326398030710313012:
-        @bot.command()
-        async def reset_database(ctx):
-            if ctx.author.id in admins:
-                try:
-                    conn = await get_db_connection()
-                    cursor = await conn.cursor()
-
-                    await cursor.execute("DROP TABLE IF EXISTS users")
-                    await conn.commit()
-
-                    await cursor.execute("""
-                        CREATE TABLE users (
-                            user_id INTEGER PRIMARY KEY,
-                            balance INTEGER DEFAULT 0,
-                            oven_cap INTEGER DEFAULT 1,
-                            bake_speed INTEGER DEFAULT 60,
-                            ping INTEGER DEFAULT 0,
-                            last_active INTEGER DEFAULT 0,
-                            idle_upgrade_level INTEGER DEFAULT 1,
-                            last_daily INTEGER DEFAULT 0,
-                            xp INTEGER DEFAULT 0,
-                            last_steal INTEGER DEFAULT 0,
-                            last_gamble INTEGER DEFAULT 0,
-                            daily_streak INTEGER DEFAULT 0,
-                            interactions INTEGER DEFAULT 0,
-                            total_cookies INTEGER DEFAULT 0,
-                            boost_time INTEGER DEFAULT 0,
-                            boost_level INTEGER DEFAULT 1
-                        )
-                        """)
-                    await conn.commit()
-
-                    await ctx.respond("database has been reset")
-                except Exception as e:
-                    await ctx.respond(f"An error occurred while resetting the database: {e}")
-            else:
-                await ctx.respond("You do not have permission to use this command.", ephemeral=True)
-    @bot.command()
-    async def add_xp(ctx, amount):
-        data = await get_data(ctx.author.id)
-        data['xp'] += int(amount)
-        await update_data(data)
-        await ctx.respond(f'added {amount} xp')
-
-    @bot.command()
-    async def change_balance(ctx, amount: int):
-        data = await get_data(ctx.author.id)
-        data = await update_balance(data, amount)
-        await update_data(data)
-        await ctx.respond(f'Your balance has been updated to {data["balance"]}')
-        print(amount, ctx.author.id)
-    '''
             
 def setup(bot):
     bot.add_cog(Admin(bot))
