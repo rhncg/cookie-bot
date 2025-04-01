@@ -31,6 +31,8 @@ class LeaderboardView(discord.ui.View):
             sort = "balance"
         elif self.sort == "Streak":
             sort = "daily_streak"
+            
+        self.page = 1
 
         await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()

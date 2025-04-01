@@ -35,12 +35,15 @@ class Bake(discord.Cog):
 
         await update_data(data)
 
-        await asyncio.sleep(bake_speed - 1)
-        data = await get_data(user_id)
-        data = await update_balance(data, oven_cap)
-        data['xp'] += round(oven_cap * 0.5)
-        await update_data(data)
-        del baking_users[user_id]
+        try:
+            await asyncio.sleep(bake_speed - 1)
+            data = await get_data(user_id)
+            data = await update_balance(data, oven_cap)
+            data['xp'] += round(oven_cap * 0.5)
+            await update_data(data)
+        finally:
+            del baking_users[user_id]
+            
         if data['boost_time'] > datetime.now().timestamp():
             boost = data['boost_level'] * 0.25 + 1
         else:
