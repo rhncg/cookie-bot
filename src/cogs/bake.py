@@ -21,8 +21,7 @@ class Bake(discord.Cog):
         oven_cap = data['oven_cap']
 
         if user_id in baking_users:
-            await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.',
-                            ephemeral=True)
+            await ctx.respond(f'You are already baking cookies! Please wait until your current batch is done.', ephemeral=True)
             return
 
         await try_drop(ctx.channel)
@@ -31,7 +30,9 @@ class Bake(discord.Cog):
         new_time = f'<t:{int(current_time + bake_speed)}:R>'
 
         baking_users[user_id] = True
-        bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookies**. They will be done {new_time}', delete_after=bake_speed+5)
+        
+        s = "s" if oven_cap * boost != 1 else "" 
+        bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookie{s}**. They will be done {new_time}', delete_after=bake_speed+5)
 
         await update_data(data)
 
