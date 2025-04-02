@@ -1,6 +1,6 @@
 global admins, baking_users, bake_speed_upgrades, gamble_users
 
-version = '2.8.6'
+version = '2.8.7'
 admins = [1066616669843243048, 1099138268601258024]
 dev_bots = [1326398030710313012]
 active_channels = {}

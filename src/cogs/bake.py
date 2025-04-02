@@ -31,6 +31,11 @@ class Bake(discord.Cog):
 
         baking_users[user_id] = True
         
+        if data['boost_time'] > datetime.now().timestamp():
+            boost = data['boost_level'] * 0.25 + 1
+        else:
+            boost = 1
+        
         s = "s" if oven_cap * boost != 1 else "" 
         bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookie{s}**. They will be done {new_time}', delete_after=bake_speed+5)
 
@@ -44,11 +49,6 @@ class Bake(discord.Cog):
             await update_data(data)
         finally:
             del baking_users[user_id]
-            
-        if data['boost_time'] > datetime.now().timestamp():
-            boost = data['boost_level'] * 0.25 + 1
-        else:
-            boost = 1
             
         s = "s" if oven_cap * boost != 1 else "" 
         await bake_message.edit(content=f'You baked **{numerize(oven_cap * boost, 2)} cookie{s}**! You now have **{numerize(data["balance"], 2)} cookies**. (+{numerize(round(oven_cap * 0.5), 2)} xp)')
