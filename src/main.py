@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
-from src.funcs.background import check_active, fetch_users
+from src.funcs.background import run_background_tasks
 from funcs.globals import version
 
 load_dotenv()
@@ -49,9 +49,8 @@ async def on_ready():
     except Exception as e:
         print(f"Error creating table: {e}")
         
-    await check_active()
-    await fetch_users()
-
+    await run_background_tasks()
+    
 cogs_list = [
     'admin',
     'bake',

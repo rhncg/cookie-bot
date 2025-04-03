@@ -4,6 +4,10 @@ from datetime import datetime
 from src.funcs.globals import active_channels
 from src.funcs.data import get_data, get_user_ids
 
+async def run_background_tasks():
+    asyncio.create_task(check_active())
+    asyncio.create_task(fetch_users())
+
 async def log_active(ctx):
     channel = ctx.channel
     time = datetime.now().timestamp()

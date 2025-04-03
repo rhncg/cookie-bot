@@ -44,7 +44,6 @@ async def get_data(user_id):
     
     if datetime.now().timestamp() - data['last_daily'] > 172800:
         data['daily_streak'] = 0
-    print(datetime.now().timestamp() - data['last_daily'])
 
     data = await update_idle(data)
     
