@@ -50,13 +50,13 @@ async def get_data(user_id):
 async def update_data(data):
     data['options'] = json.dumps(data['options'])
     
+    if datetime.now().timestamp() - data['last_daily'] > 172800:
+        data['daily_streak'] = 0
+    
     user_id = data.pop('user_id', None)
     set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
     values = list(data.values())
     values.append(user_id)
-    
-    if datetime.now().timestamp() - data['last_daily'] > 172800:
-        data['daily_streak'] = 0
 
     conn = await get_db_connection()
     cursor = await conn.cursor()
