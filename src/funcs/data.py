@@ -83,5 +83,6 @@ async def get_user_ids():
     cursor = await conn.cursor()
     await cursor.execute("SELECT user_id FROM users")
     rows = await cursor.fetchall()
+    print(rows)
     user_ids = [row[0] for row in rows]
     return user_ids
