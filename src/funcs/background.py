@@ -2,7 +2,7 @@ import discord
 import asyncio
 from datetime import datetime
 from src.funcs.globals import active_channels
-from src.funcs.data import get_data, get_user_ids
+from src.funcs.data import get_data, update_data, get_user_ids
 
 async def run_background_tasks():
     asyncio.create_task(check_active())
@@ -25,7 +25,8 @@ async def fetch_users():
     ids = await get_user_ids()
     for user_id in ids:
         try:
-            await get_data(user_id)
+            data = await get_data(user_id)
+            await update_data(data)
         except Exception as e:
             pass
     await asyncio.sleep(60)

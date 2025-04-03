@@ -42,9 +42,6 @@ async def get_data(user_id):
         'boost_speed': row[17],
         'options': json.loads(row[18])
     }
-    
-    if datetime.now().timestamp() - data['last_daily'] > 172800:
-        data['daily_streak'] = 0
 
     data = await update_idle(data)
     
@@ -57,6 +54,9 @@ async def update_data(data):
     set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
     values = list(data.values())
     values.append(user_id)
+    
+    if datetime.now().timestamp() - data['last_daily'] > 172800:
+        data['daily_streak'] = 0
 
     conn = await get_db_connection()
     cursor = await conn.cursor()
