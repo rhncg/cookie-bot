@@ -41,6 +41,9 @@ async def get_data(user_id):
         'boost_speed': row[17],
         'options': json.loads(row[18])
     }
+    
+    if not datetime.now().timestamp() - data['last_daily'] < 172800:
+        data['daily_streak'] = 0
 
     data = await update_idle(data)
     
@@ -73,3 +76,11 @@ async def update_idle(data):
     
     data['interactions'] += 1
     return data
+
+async def get_user_ids():
+    conn = await get_db_connection()
+    cursor = await conn.cursor()
+    await cursor.execute("SELECT user_id FROM users")
+    rows = await cursor.fetchall()
+    user_ids = [row[0] for row in rows]
+    return user_ids

@@ -3,7 +3,7 @@ from funcs.numerize import numerize
 from src.funcs.data import get_data
 from src.funcs.db import get_db_connection
 from src.views.leaderboard import LeaderboardView
-from funcs.log_server import log_active
+from src.funcs.background import log_active
 
 class Leaderboard(discord.Cog):
     def __init__(self, bot):

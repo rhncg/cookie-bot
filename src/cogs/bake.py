@@ -4,7 +4,7 @@ from src.funcs.globals import baking_users
 from funcs.numerize import numerize
 from src.funcs.drops import try_drop
 from datetime import datetime
-from funcs.log_server import log_active
+from src.funcs.background import log_active
 import asyncio
 
 class Bake(discord.Cog):

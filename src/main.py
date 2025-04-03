@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 from src.funcs.db import get_db_connection
 from src.bot_instance import bot
-from src.funcs.log_server import check_active
+from src.funcs.background import check_active, fetch_users
 from funcs.globals import version
 
 load_dotenv()
@@ -50,6 +50,7 @@ async def on_ready():
         print(f"Error creating table: {e}")
         
     await check_active()
+    await fetch_users()
 
 cogs_list = [
     'admin',

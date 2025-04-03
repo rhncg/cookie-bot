@@ -2,7 +2,7 @@ import discord
 from src.funcs.data import get_data
 from src.funcs.upgrade_calc import make_shop_embed
 from src.views.upgrade import UpgradeView
-from funcs.log_server import log_active
+from src.funcs.background import log_active
 
 class Shop(discord.Cog):
     def __init__(self, bot):

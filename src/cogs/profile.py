@@ -4,7 +4,7 @@ from datetime import datetime
 from src.funcs.data import get_data
 from src.funcs.level import get_xp_bar_data, calculate_level
 from src.funcs.profile import get_profile
-from funcs.log_server import log_active
+from src.funcs.background import log_active
 
 class Profile(discord.Cog):
     def __init__(self, bot):

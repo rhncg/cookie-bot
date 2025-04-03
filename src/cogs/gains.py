@@ -6,7 +6,7 @@ from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import gamble_users
 from src.funcs.steal import try_steal
 from src.views.gamble import GambleConfirmationView
-from funcs.log_server import log_active
+from src.funcs.background import log_active
 
 
 class Gains(discord.Cog):
