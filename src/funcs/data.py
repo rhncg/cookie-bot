@@ -4,6 +4,7 @@ from src.funcs.db import get_db_connection
 import json
 
 async def get_data(user_id):
+    print(user_id)
     conn = await get_db_connection()
     cursor = await conn.cursor()
     await cursor.execute(
