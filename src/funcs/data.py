@@ -42,7 +42,7 @@ async def get_data(user_id):
         'options': json.loads(row[18])
     }
     
-    if not datetime.now().timestamp() - data['last_daily'] < 172800:
+    if datetime.now().timestamp() - data['last_daily'] > 172800:
         data['daily_streak'] = 0
 
     data = await update_idle(data)
