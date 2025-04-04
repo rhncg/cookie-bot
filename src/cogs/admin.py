@@ -69,9 +69,12 @@ class Admin(discord.Cog):
                     if not user:
                         user = ctx.author
                     data = await get_data(user.id)
-                    data[index] = set
-                    await update_data(data)
-                    await ctx.respond(f"set {index} to {set}", ephemeral=True)
+                    try:
+                        data[index] = set
+                        await update_data(data)
+                        await ctx.respond(f"set {index} to {set}", ephemeral=True)
+                    except Exception as e:
+                        await ctx.respond(f"error {e}", ephemeral=True)
                 else:
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
                     

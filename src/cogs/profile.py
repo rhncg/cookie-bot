@@ -61,7 +61,8 @@ class Profile(discord.Cog):
         
         data = await get_data(ctx.author.id)
         balance = data['balance']
-        await ctx.respond(f'You have {balance} ({numerize(balance)}) cookies.')
+        short = f"({numerize(balance)}) " if balance > 1000 else ""
+        await ctx.respond(f'You have {balance} {short}cookies.')
             
 def setup(bot):
     bot.add_cog(Profile(bot))

@@ -67,15 +67,13 @@ async def update_data(data):
 async def update_idle(data):
     if data['last_active'] == 0:
         data['last_active'] = datetime.now().timestamp()
-    time_elapsed = (datetime.now().timestamp() - data['last_active']) // 60
+    time_elapsed = (datetime.now().timestamp() - data['last_active'])
     if time_elapsed > 0 and data['idle_upgrade_level'] > 1:
         idle_upgrade = 1.2 ** (data['idle_upgrade_level'] - 1) - 1
-        idle_cookies = int(time_elapsed * idle_upgrade)
-        data = await update_balance(data, idle_cookies)
-        data['last_active'] = datetime.now().timestamp()
-    else:
-        data['last_active'] = datetime.now().timestamp()
-    
+        idle_cookies = int(time_elapsed * idle_upgrade / 60)
+        data = await update_balance(data, idle_cookies)   
+    data['last_active'] = datetime.now().timestamp()
+        
     data['interactions'] += 1
     return data
 
