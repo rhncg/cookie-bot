@@ -28,7 +28,7 @@ class LeaderboardView(discord.ui.View):
         if self.sort == "Level":
             sort = "xp"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
             
@@ -65,7 +65,7 @@ class LeaderboardView(discord.ui.View):
         if self.sort == "Level":
             sort = "xp"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -97,7 +97,7 @@ class LeaderboardView(discord.ui.View):
         if self.sort == "Level":
             sort = "xp"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -146,7 +146,7 @@ class LeaderboardView(discord.ui.View):
         if self.sort == "Level":
             sort = "xp"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -184,7 +184,7 @@ class LeaderboardView(discord.ui.View):
         if self.sort == "Level":
             sort = "xp"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         

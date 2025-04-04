@@ -19,13 +19,12 @@ class Leaderboard(discord.Cog):
         cursor = await conn.cursor()
         
         query = '''
-        SELECT user_id, balance FROM users ORDER BY balance DESC LIMIT 10
+        SELECT user_id, CAST(balance AS INTEGER) FROM users ORDER BY CAST(balance AS INTEGER) DESC LIMIT 10
         '''
 
         await cursor.execute(query)
         rows = await cursor.fetchall()
         embed = discord.Embed(title="Cookies Leaderboard", color=0x6b4f37)
-        embed.add_field(name="The Cookies Leaderboard is currently not ordered, it will be fixed soon in an update.", value="", inline=False)
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
