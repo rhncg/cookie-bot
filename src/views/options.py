@@ -67,7 +67,7 @@ class OptionsView(discord.ui.View):
         elif select.values[0] == "Change profile color":
             data = await get_data(interaction.user.id)
             
-            if calculate_level(data['xp']) < 200:
+            if await calculate_level(data['xp']) < 200:
                 await interaction.response.send_message("You must be level 200 or higher to change your profile color.", ephemeral=True)
                 return
             
