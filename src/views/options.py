@@ -1,5 +1,6 @@
 import discord
 from src.funcs.data import get_data, update_data
+from funcs.level import calculate_level
 
 class OptionsView(discord.ui.View):
     def __init__(self, user_id):
@@ -27,6 +28,10 @@ class OptionsView(discord.ui.View):
                 label="Show gamble confirmation window",
                 description="Shows a confirmation window before gambling",
             ),
+            discord.SelectOption(
+                label="Change profile color",
+                description="You must must be level 200 or higher to change profile color",
+            )
         ]
     )
     
@@ -59,6 +64,15 @@ class OptionsView(discord.ui.View):
                 
             await update_data(data)
             
+        elif select.values[0] == "Change profile color":
+            data = await get_data(interaction.user.id)
+            
+            if calculate_level(data['xp']) < 200:
+                await interaction.response.send_message("You must be level 200 or higher to change your profile color.", ephemeral=True)
+                return
+            
+            await interaction.response.send_modal(ProfileModal())
+            
 async def make_options_embed(user_id):
     data = await get_data(user_id)
     embed = discord.Embed(title="Options", color=0x6b4f37)
@@ -79,3 +93,25 @@ async def make_options_embed(user_id):
     embed.add_field(name="Ping when stolen from", value=f"{steal_ping}", inline=False)
     embed.add_field(name="Show gamble confirmation window", value=f"{gamble_confirmation}", inline=False)
     return embed
+
+class ProfileModal(discord.ui.Modal):
+    def __init__(self):
+        super().__init__(timeout=None, title="Change Profile Color")
+        self.add_item(discord.ui.InputText(label="HEX Code"))
+    
+    async def callback(self, interaction: discord.Interaction):
+        data = await get_data(interaction.user.id)
+        hex_code = self.children[0].value
+        if not hex_code.startswith("#"):
+            hex_code = "#" + hex_code
+        if len(hex_code) != 7:
+            await interaction.response.send_message("Invalid HEX code. Please try again.", ephemeral=True)
+            return
+        if not all(c in "0123456789ABCDEFabcdef" for c in hex_code[1:]):
+            await interaction.response.send_message("Invalid HEX code. Please try again.", ephemeral=True)
+            return
+        
+        data['options']['profile_color'] = hex_code
+        await update_data(data)
+        
+        await interaction.response.send_message(f"Your profile color has been changed to {hex_code}.")

@@ -36,7 +36,7 @@ async def on_ready():
             boost_level INTEGER DEFAULT 1,
             steal_ping BOOLEAN DEFAULT True,
             boost_speed INTEGER DEFAULT 10,
-            options TEXT DEFAULT '{"steal_ping": true, "gamble_confirmation": true}'
+            options TEXT DEFAULT '{"steal_ping": true, "gamble_confirmation": true, "profile_color": "default"}'
         )
         """)
         await cursor.execute("""

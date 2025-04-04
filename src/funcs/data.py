@@ -13,7 +13,7 @@ async def get_data(user_id):
     if row is None:
         await cursor.execute(
             "INSERT INTO users (user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal_ping, boost_speed, options) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, True, 10, '{"steal_ping": true, "gamble_confirmation": true}'))
+            (user_id, 0, 1, 60, False, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, True, 10, '{"steal_ping": true, "gamble_confirmation": true, "profile_color": "default"}'))
         await conn.commit()
         await cursor.execute(
             "SELECT user_id, balance, oven_cap, bake_speed, ping, last_active, idle_upgrade_level, last_daily, xp, last_steal, last_gamble, daily_streak, interactions, total_cookies, boost_time, boost_level, steal_ping, boost_speed, options FROM users WHERE user_id = ?",
