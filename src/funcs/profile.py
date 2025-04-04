@@ -2,6 +2,7 @@ import discord
 from funcs.numerize import numerize
 from src.funcs.data import get_data, update_data
 from src.funcs.level import get_xp_bar_data, calculate_level
+from funcs.color import get_color
 
 async def get_profile(ctx, user):
         if user is None:
@@ -15,18 +16,7 @@ async def get_profile(ctx, user):
             idle_upgrade = round(1.15 ** (idle_upgrade_level - 1) - 1, 1)
             bar_data = await get_xp_bar_data(data['xp'])
             
-            try:
-                color = data['options']['profile_color']
-            except KeyError:
-                color = "default"
-                data['options']['profile_color'] = color
-                await update_data(data)
-            
-            if color == "default":
-                color = 0x6b4f37
-
-            if isinstance(color, str) and color.startswith("#"):
-                color = int("0x" + color[1:], 16)
+            color = await get_color(data)
             
             embed = discord.Embed(color=color)
             embed.add_field(name=f"Level {await calculate_level(data['xp'])} - {numerize(data['xp'], 2)} xp", value=bar_data[3],

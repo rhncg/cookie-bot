@@ -5,6 +5,7 @@ from datetime import datetime
 from src.funcs.data import get_data
 from src.bot_instance import bot
 from src.funcs.globals import bake_speed_upgrades
+from funcs.color import get_color
 
 async def make_shop_embed(user_id, bot):
     global bake_speed_upgrades
@@ -37,10 +38,12 @@ async def make_shop_embed(user_id, bot):
 
     idle_upgrade = numerize(round(1.2 ** (idle_upgrade_level - 1) - 1, 1), 2)
     next_idle_upgrade = numerize(round((1.2 ** idle_upgrade_level) - 1, 1), 2)
+    
+    color = await get_color(data)
 
     user = await bot.fetch_user(user_id)
 
-    embed = discord.Embed(color=0x6b4f37)
+    embed = discord.Embed(color=color)
     embed.set_author(name=f"{user.display_name}'s shop", icon_url=user.display_avatar.url)
 
     embed.add_field(name="Bake Speed Upgrade",
