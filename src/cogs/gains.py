@@ -62,7 +62,7 @@ class Gains(discord.Cog):
 
         embed = discord.Embed(title=f"Are you sure you want to gamble {numerize(amount, 2)} cookies?", color=0x6b4f37)
         embed.add_field(name=f"You can either win or lose up to {numerize(amount, 2)} cookies.", value="", inline=False)
-        embed.add_field(name="This action cannot be undone.", value="", inline=False)
+        embed.set_footer(text="You can disable this confirmation window with /options")
         
         if data['options']['gamble_confirmation'] == True:
             await ctx.respond(embed=embed, view=GambleConfirmationView(ctx.author.id, amount))
