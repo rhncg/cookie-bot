@@ -22,14 +22,15 @@ class GambleConfirmationView(discord.ui.View):
         data['last_gamble'] = datetime.now().timestamp()
         balance = data['balance']
         await update_data(data)
+        
+        if data['boost_time'] > datetime.now().timestamp():
+            boost = data['boost_level'] * 0.25 + 1
+        else:
+            boost = 1
+            
         s = "s" if self.amount * boost != 1 else "" 
         gamble_users.remove(interaction.user.id)
         if gamble_result > 0:
-            if data['boost_time'] > datetime.now().timestamp():
-                boost = data['boost_level'] * 0.25 + 1
-            else:
-                boost = 1
-            
             await interaction.response.edit_message(
                 content=f"You gambled **{numerize(self.amount, 2)} cookie{s}** and won **{numerize(gamble_result * boost, 2)} cookie{s}**! You now have **{numerize(balance, 2)} cookies**.",
                 embed=None, view=None)

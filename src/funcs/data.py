@@ -22,7 +22,7 @@ async def get_data(user_id):
 
     data = {
         'user_id': row[0],
-        'balance': row[1],
+        'balance': int(row[1]),
         'oven_cap': row[2],
         'bake_speed': row[3],
         'ping': row[4],
@@ -34,7 +34,7 @@ async def get_data(user_id):
         'last_gamble': row[10],
         'daily_streak': row[11],
         'interactions': row[12],
-        'total_cookies': row[13],
+        'total_cookies': int(row[13]),
         'boost_time': row[14],
         'boost_level': row[15],
         'steal_ping': row[16],
@@ -47,6 +47,8 @@ async def get_data(user_id):
     return data
 
 async def update_data(data):
+    data['balance'] = str(data['balance'])
+    data['total_cookies'] = str(data['total_cookies'])
     data['options'] = json.dumps(data['options'])
     
     if datetime.now().timestamp() - data['last_daily'] > 172800:
