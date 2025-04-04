@@ -20,7 +20,7 @@ class Admin(discord.Cog):
     '''
         
     @discord.command(description="nuh uh")
-    async def admin(self, ctx, cmd: str, user: discord.User = None, index: str = None, set = None):
+    async def admin(self, ctx, cmd: str, user: discord.User = None, index: str = None, value = None):
         if ctx.author.id in admins:
             cmd = cmd.lower()
             if cmd == "rsmsg":
@@ -89,6 +89,15 @@ class Admin(discord.Cog):
                 
                 python = sys.executable
                 os.execv(python, [python, "-m", "main"])
+            
+            elif cmd == "announce":
+                channels = []
+                
+                for channel in active_channels.keys():
+                    await channel.send(f"{value}")
+                    channels.append(channel)
+                    
+                await ctx.respond(f"Sent in {len(channels)} channels", ephemeral=True)
             
             else:
                 await ctx.respond("Invalid command.", ephemeral=True)

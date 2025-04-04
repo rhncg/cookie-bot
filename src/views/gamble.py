@@ -17,6 +17,11 @@ class GambleConfirmationView(discord.ui.View):
             await interaction.response.send_message("You cannot accept this person's gamble.", ephemeral=True)
             return
         data = await get_data(interaction.user.id)
+        
+        if self.amount > data['balance']:
+            await interaction.response.edit_message(content="Your balance has gone down too low since you opened the window, please try again.")
+            return
+        
         gamble_result = random.randint(-1 * int(self.amount), int(self.amount))
         data = await update_balance(data, gamble_result)
         data['last_gamble'] = datetime.now().timestamp()

@@ -61,7 +61,7 @@ class Profile(discord.Cog):
         
         data = await get_data(ctx.author.id)
         balance = data['balance']
-        await ctx.respond(f'You have {balance} cookies.')
+        await ctx.respond(f'You have {balance} ({numerize(balance)}) cookies.')
             
 def setup(bot):
     bot.add_cog(Profile(bot))
