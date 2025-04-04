@@ -25,6 +25,7 @@ class Leaderboard(discord.Cog):
         await cursor.execute(query)
         rows = await cursor.fetchall()
         embed = discord.Embed(title="Cookies Leaderboard", color=0x6b4f37)
+        embed.add_field(name="The Cookies Leaderboard is currently not ordered, it will be fixed soon in an update.", value="", inline=False)
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
