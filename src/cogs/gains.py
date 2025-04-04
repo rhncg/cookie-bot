@@ -27,6 +27,11 @@ class Gains(discord.Cog):
     async def gamble(self, ctx, quick_selection: discord.Option(str, choices=['all', 'half']) = None, amount: int = None): # type: ignore
         await log_active(ctx)
         
+        embed = discord.Embed(title="Gambling is temporarily disabled", color=0x6b4f37)
+        embed.add_field(name="It'll be back soon after I fix a bug", value="", inline=False)
+        await ctx.respond(embed=embed)
+        return
+        
         data = await get_data(ctx.author.id)
         last_gamble = data['last_gamble']
         balance = data['balance']
