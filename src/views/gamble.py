@@ -45,7 +45,7 @@ class GambleConfirmationView(discord.ui.View):
                 embed=None, view=None)
         else:
             await interaction.response.edit_message(
-                content=f"You gambled **{numerize(self.amount, 2)} cookie{s}** and ended up with the same amount. Your balance is still **{numerize(balance, 2)}. cookies**.",
+                content=f"You gambled **{numerize(self.amount, 2)} cookie{s}** and ended up with the same amount. Your balance is still **{numerize(balance, 2)} cookies**.",
                 embed=None, view=None)
 
     @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)

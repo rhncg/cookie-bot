@@ -76,12 +76,14 @@ async def make_shop_embed(user_id, bot):
                                         f"Upgrade multiplier to {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
                                         f"{boost_string}\n"
                                         f"Activate boost: {boost_activate_price} cookies", inline=True)
-
-
-    if not ping == 0:
-        embed.add_field(name="Ping When Done Baking", value=f"Owned", inline=True)
-    else:
+    
+    if ping == 0:
         embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 10 cookies", inline=True)
+    elif ping == 1:
+        embed.add_field(name="Ping When Done Baking", value=f"Disabled", inline=True)
+    elif ping == 2:
+        embed.add_field(name="Ping When Done Baking", value=f"Enabled", inline=True)
+        
     embed.add_field(name="Current Balance", value=f"{numerize(balance, 2)} cookies", inline=False)
     
     return embed
