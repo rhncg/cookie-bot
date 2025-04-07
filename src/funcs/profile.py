@@ -13,7 +13,7 @@ async def get_profile(ctx, user):
             bake_speed = data['bake_speed']
             oven_cap = data['oven_cap']
             idle_upgrade_level = data['idle_upgrade_level']
-            idle_upgrade = round(1.15 ** (idle_upgrade_level - 1) - 1, 1)
+            idle_upgrade = round(1.235 ** (idle_upgrade_level - 1) - 1, 1)
             bar_data = await get_xp_bar_data(data['xp'])
             
             color = await get_color(data)

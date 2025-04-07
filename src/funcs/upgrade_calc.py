@@ -36,8 +36,8 @@ async def make_shop_embed(user_id, bot):
     except IndexError:
         next_cookie_upgrade = "Max Level Reached"
 
-    idle_upgrade = numerize(round(1.2 ** (idle_upgrade_level - 1) - 1, 1), 2)
-    next_idle_upgrade = numerize(round((1.2 ** idle_upgrade_level) - 1, 1), 2)
+    idle_upgrade = numerize(round(1.235 ** (idle_upgrade_level - 1) - 1, 1), 2)
+    next_idle_upgrade = numerize(round((1.235 ** idle_upgrade_level) - 1, 1), 2)
     
     color = await get_color(data)
 
@@ -76,6 +76,7 @@ async def make_shop_embed(user_id, bot):
                                         f"Upgrade multiplier to {next_boost_multiplier}x for {boost_upgrade_price} cookies\n"
                                         f"{boost_string}\n"
                                         f"Activate boost: {boost_activate_price} cookies", inline=True)
+
     
     if ping == 0:
         embed.add_field(name="Ping When Done Baking", value=f"Not owned\nCost: 10 cookies", inline=True)
