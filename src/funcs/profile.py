@@ -15,6 +15,8 @@ async def get_profile(ctx, user):
             idle_upgrade_level = data['idle_upgrade_level']
             idle_upgrade = round(1.235 ** (idle_upgrade_level - 1) - 1, 1)
             bar_data = await get_xp_bar_data(data['xp'])
+            boost_multiplier = data['boost_level'] * 0.25 + 1
+            boost_time = data['boost_time'] * 60
             
             color = await get_color(data)
             
@@ -28,6 +30,7 @@ async def get_profile(ctx, user):
             embed.add_field(name="Oven Capacity", value=f"{numerize(oven_cap, 2)} cookies", inline=True)
             embed.add_field(name="Idle Rate", value=f"{numerize(idle_upgrade, 2)} cookies per minute", inline=True)
             embed.add_field(name="Daily Streak", value=data['daily_streak'], inline=True)
+            embed.add_field(name="Boost", value=f"{boost_multiplier}x for {boost_time} minutes", inline=True)
             embed.add_field(name="Total Cookies Baked", value=numerize(data['total_cookies'], 2), inline=True)
             embed.set_author(name=f"{user.display_name}'s profile", icon_url=user.display_avatar.url)
             await ctx.respond(embed=embed)
