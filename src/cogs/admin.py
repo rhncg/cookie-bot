@@ -79,6 +79,9 @@ class Admin(discord.Cog):
                     await ctx.respond("this can't be run on the prod bot", ephemeral=True)
                     
             elif cmd == "restart":
+                for channel in active_channels.keys():
+                    await channel.send("Bot is restarting soon, please wait...")
+                
                 await ctx.respond("restarting...", ephemeral=True)
             
                 process = subprocess.run(['git', 'pull'], capture_output=True, text=True)
