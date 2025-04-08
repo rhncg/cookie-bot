@@ -19,7 +19,7 @@ class Updates(discord.Cog):
     
     @discord.command(description="View command info")
     async def help(self, ctx):
-        await ctx.responds("Coming soon", ephemeral=True)
+        await ctx.respond("Coming soon", ephemeral=True)
         
     @discord.command(description="View updates and upcoming features")
     async def updates(self, ctx):
