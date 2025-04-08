@@ -5,7 +5,7 @@ import sys
 import subprocess
 import re
 from src.funcs.data import get_data, update_balance, update_data
-from src.funcs.globals import admins, baking_users, gamble_users, dev_bots, active_channels
+from src.funcs.globals import admins, baking_users, gamble_users, dev_bots, active_channels, upgrade_params, version
 from src.funcs.drops import try_drop
 
 class Admin(discord.Cog):
@@ -118,8 +118,8 @@ class Admin(discord.Cog):
         if ctx.author.id in admins:
             embed = discord.Embed(title="Debug", color=0x6b4f37)
             embed.add_field(name="Ping", value=f"{round(self.bot.latency * 1000)}ms", inline=False)
-            embed.add_field(name="Baking Users", value=f"{baking_users}", inline=False)
             embed.add_field(name="User Data", value=f"ID: {user.id}\n"
+                                                    f"Username: {user.name}\n"
                                                     f"Balance: {data['balance']}\n"
                                                     f"Oven Cap: {data['oven_cap']}\n"
                                                     f"Bake Speed: {data['bake_speed']}\n"
@@ -137,9 +137,12 @@ class Admin(discord.Cog):
                                                     f"Boost Level: {data['boost_level']}\n"
                                                     f"Steal Ping: {data['steal_ping']}\n"
                                                     f"Boost Speed: {data['boost_speed']}", inline=False)
+            embed.add_field(name="Baking Users", value=f"{baking_users}", inline=False)
             embed.add_field(name="Current Unix Time", value=f"{datetime.now().timestamp()}", inline=False)
             embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
             embed.add_field(name="Active Channels", value=f"{active_channels}", inline=False)
+            embed.add_field(name="UpgradeParams", value=f"{upgrade_params}", inline=False)
+            embed.set_footer(text=f"Bot Version: {version}")
             await ctx.respond(embed=embed)
         else:
             await ctx.respond("Only admins can use this command.", ephemeral=True)

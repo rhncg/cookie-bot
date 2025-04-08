@@ -4,7 +4,7 @@ from funcs.numerize import numerize
 from datetime import datetime
 from src.funcs.data import get_data
 from src.bot_instance import bot
-from src.funcs.globals import bake_speed_upgrades
+from src.funcs.globals import bake_speed_upgrades, upgrade_params
 from funcs.color import get_color
 
 async def make_shop_embed(user_id, bot):
@@ -36,8 +36,8 @@ async def make_shop_embed(user_id, bot):
     except IndexError:
         next_cookie_upgrade = "Max Level Reached"
 
-    idle_upgrade = numerize(round(1.235 ** (idle_upgrade_level - 1) - 1, 1), 2)
-    next_idle_upgrade = numerize(round((1.235 ** idle_upgrade_level) - 1, 1), 2)
+    idle_upgrade = numerize(round(upgrade_params['idle_rate'] ** (idle_upgrade_level - 1) - 1, 1), 2)
+    next_idle_upgrade = numerize(round((upgrade_params['idle_rate'] ** idle_upgrade_level) - 1, 1), 2)
     
     color = await get_color(data)
 
@@ -90,30 +90,30 @@ async def make_shop_embed(user_id, bot):
     return embed
 
 async def calculate_next_upgrade_price(data, upgrade_type):
-    base_price = 5
+    base_price = upgrade_params['default_base_price']
 
     if upgrade_type == 'bake_speed':
         current_level = bake_speed_upgrades.index(data['bake_speed'])
-        growth_rate = 2
+        growth_rate = upgrade_params['bake_speed_pgr']
     elif upgrade_type == 'oven_cap':
         current_level = await calculate_next_upgrade(data, 'oven_cap', True)
-        growth_rate = 1.6
+        growth_rate = upgrade_params['oven_cap_pgr']
     elif upgrade_type == 'idle_upgrade':
         current_level = data['idle_upgrade_level']
-        growth_rate = 1.3
+        growth_rate = upgrade_params['idle_pgr']
     elif upgrade_type == 'boost_upgrade':
-        base_price = 10
+        base_price = upgrade_params['boost_upgrade_base']
         current_level = data['boost_level']
-        growth_rate = 45
+        growth_rate = upgrade_params['boost_upgrade_pgr']
     elif upgrade_type == 'boost_activate':
-        price = 0.1 * data['balance']
+        price = upgrade_params['boost_activate_percent'] * data['balance']
         if price < 10:
             price = 10
         return price
     elif upgrade_type == 'boost_speed':
-        base_price = 2000
+        base_price = upgrade_params['boost_speed_base']
         current_level = data['boost_speed'] / 5
-        growth_rate = 8
+        growth_rate = upgrade_params['boost_speed_pgr']
         
     else:
         return None
@@ -127,7 +127,7 @@ async def calculate_next_upgrade(data, upgrade_type, inverse=False):
         if upgrade_type == 'bake_speed':
             return
         elif upgrade_type == 'oven_cap':
-            next_upgrade = math.ceil(1.5 * data['oven_cap'])
+            next_upgrade = math.ceil(upgrade_params['oven_cap_rate'] * data['oven_cap'])
         elif upgrade_type == 'boost_level':
             next_upgrade = (data['boost_level'] + 1) * 0.25 + 1
         elif upgrade_type == 'boost_speed':
@@ -146,7 +146,7 @@ async def calculate_next_upgrade(data, upgrade_type, inverse=False):
         if upgrade_type == 'bake_speed':
             return
         elif upgrade_type == 'oven_cap':
-            steps = math.ceil(math.log(data['oven_cap']) / math.log(1.5))
+            steps = math.ceil(math.log(data['oven_cap']) / math.log(upgrade_params['oven_cap_rate']))
         else:
             return
         return steps
