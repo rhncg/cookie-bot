@@ -8,7 +8,7 @@ class Updates(discord.Cog):
     @discord.command(description="View bot info")
     async def about(self, ctx):
         embed = discord.Embed(title="About", color=0x6b4f37)
-        embed.add_field(name="Use /help to view all commands", value="", inline=False)
+        embed.add_field(name="Use </help:1359289316957749469> to view all commands", value="", inline=False)
         embed.add_field(name="Use </updates:1328582089934766174> to view updates and upcoming features", value="", inline=False)
         embed.add_field(name="Use </suggest:1327132851371507824> to suggest new features", value="", inline=False)
         embed.add_field(name="Developed by", value="@rhncg", inline=False)
