@@ -5,6 +5,22 @@ class Updates(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
         
+    @discord.command(description="View bot info")
+    async def about(self, ctx):
+        embed = discord.Embed(title="About", color=0x6b4f37)
+        embed.add_field(name="Use /help to view all commands", value="", inline=False)
+        embed.add_field(name="Use </updates:1328582089934766174> to view updates and upcoming features", value="", inline=False)
+        embed.add_field(name="Use </suggest:1327132851371507824> to suggest new features", value="", inline=False)
+        embed.add_field(name="Developed by", value="@rhncg", inline=False)
+        embed.add_field(name="This bot's source code is open source", value="You can check out the [Github](https://github.com/rhncg/cookie-bot)", inline=False)
+        embed.set_footer(text=f"Version: {version}")
+        await ctx.respond(embed=embed)
+        
+    
+    @discord.command(description="View command info")
+    async def help(self, ctx):
+        await ctx.responds("Coming soon", ephemeral=True)
+        
     @discord.command(description="View updates and upcoming features")
     async def updates(self, ctx):
         embed = discord.Embed(title="Updates", color=0x6b4f37)
@@ -36,7 +52,7 @@ class Updates(discord.Cog):
         for users in admins:
             user = await self.bot.fetch_user(users)
             await user.send(f"{ctx.author.name} has suggested: {suggestion}")
-        await ctx.respond("Your suggestion has been sent to rohan.", ephemeral=True)
+        await ctx.respond("Your suggestion has been sent", ephemeral=True)
         
 def setup(bot):
     bot.add_cog(Updates(bot))
