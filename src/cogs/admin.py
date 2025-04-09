@@ -70,9 +70,9 @@ class Admin(discord.Cog):
                         user = ctx.author
                     data = await get_data(user.id)
                     try:
-                        data[index] = set
+                        data[index] = value
                         await update_data(data)
-                        await ctx.respond(f"set {index} to {set}", ephemeral=True)
+                        await ctx.respond(f"set {index} to {value}", ephemeral=True)
                     except Exception as e:
                         await ctx.respond(f"error {e}", ephemeral=True)
                 else:
