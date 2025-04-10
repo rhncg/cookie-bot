@@ -5,6 +5,7 @@ from funcs.numerize import numerize
 from src.funcs.drops import try_drop
 from datetime import datetime
 from src.funcs.background import log_active
+from funcs.level import add_xp
 import asyncio
 
 class Bake(discord.Cog):
@@ -45,7 +46,7 @@ class Bake(discord.Cog):
             await asyncio.sleep(bake_speed - 1)
             data = await get_data(user_id)
             data = await update_balance(data, oven_cap)
-            data['xp'] += round(oven_cap * 0.5)
+            data = await add_xp(data, round(oven_cap * 0.5), ctx.channel)
             await update_data(data)
         finally:
             del baking_users[user_id]

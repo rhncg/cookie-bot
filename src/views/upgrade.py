@@ -6,6 +6,7 @@ from src.funcs.globals import bake_speed_upgrades
 from src.funcs.upgrade_calc import calculate_next_upgrade_price, calculate_next_upgrade, make_shop_embed
 from src.bot_instance import bot
 from src.funcs.numerize import numerize
+from funcs.level import add_xp
 
 class UpgradeView(discord.ui.View):
     def __init__(self, user_id, ping, boost_time, boost_speed):
@@ -70,7 +71,7 @@ class UpgradeView(discord.ui.View):
                     new_bake_speed = bake_speed_upgrades[bake_speed_upgrades.index(data['bake_speed']) + 1]
                     data = await update_balance(data, -upgrade_price)
                     data['bake_speed'] = new_bake_speed
-                    data['xp'] += 5
+                    data = await add_xp(data, 5, interaction.channel)
                     await update_data(data)
                     embed = await make_shop_embed(interaction.user.id, bot)
                     embed.add_field(name=f'Your bake speed has been upgraded to {data["bake_speed"]} seconds (+5 xp)', value="",
@@ -95,7 +96,7 @@ class UpgradeView(discord.ui.View):
                     new_oven_cap = await calculate_next_upgrade(data, 'oven_cap')
                     data = await update_balance(data, -upgrade_price)
                     data['oven_cap'] = new_oven_cap
-                    data['xp'] += 5
+                    data = await add_xp(data, 2 * new_oven_cap, interaction.channel)
                     await update_data(data)
                     embed = await make_shop_embed(interaction.user.id, bot)
                     embed.add_field(name=f'Your oven capacity has been upgraded to {numerize(data["oven_cap"])} cookies (+5 xp)', value="",
@@ -119,7 +120,7 @@ class UpgradeView(discord.ui.View):
             if data['balance'] >= upgrade_price:
                 data = await update_balance(data, -upgrade_price)
                 data['idle_upgrade_level'] = idle_upgrade_level + 1
-                data['xp'] += 5
+                data = await add_xp(data, 1.235 ** (data['idle_upgrade_level'] - 1) - 1, interaction.channel)
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
                 embed.add_field(name=f'Your idle upgrade has been upgraded to level {numerize(data["idle_upgrade_level"])} (+5 xp)',
@@ -136,7 +137,7 @@ class UpgradeView(discord.ui.View):
             if balance >= await calculate_next_upgrade_price(data, 'boost_upgrade'):
                 data = await update_balance(data, -1 * await calculate_next_upgrade_price(data, 'boost_upgrade'))
                 data['boost_level'] += 1
-                data['xp'] += 5
+                data = await add_xp(data, data['oven_cap'], interaction.channel)
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
                 embed.add_field(name="You have upgraded your boost. (+5 xp)", value="", inline=False)
@@ -157,7 +158,7 @@ class UpgradeView(discord.ui.View):
             if balance >= await calculate_next_upgrade_price(data, 'boost_speed'):
                 await update_balance(data, -1 * await calculate_next_upgrade_price(data, 'boost_speed'))
                 data['boost_speed'] = await calculate_next_upgrade(data, 'boost_speed')
-                data['xp'] += 5
+                data = await add_xp(data, data['oven_cap'], interaction.channel)
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
                 embed.add_field(name=f"You have upgraded your boost time to {data['boost_speed']} minutes. (+5 xp)", value="", inline=False)
@@ -178,7 +179,7 @@ class UpgradeView(discord.ui.View):
             if balance >= 10:
                 data = await update_balance(data, -10)
                 data['ping'] = 2
-                data['xp'] += 5
+                data = await add_xp(data, 20, interaction.channel)
                 await update_data(data)
                 embed = await make_shop_embed(interaction.user.id, bot)
                 embed.add_field(name="You've bought the ping upgrade! (+5 xp)", value="", inline=False)
