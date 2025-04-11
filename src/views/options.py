@@ -29,6 +29,10 @@ class OptionsView(discord.ui.View):
                 description="Shows a confirmation window before gambling",
             ),
             discord.SelectOption(
+                label="Ping on level up",
+                description="Disables the ping when you level up",
+            ),
+            discord.SelectOption(
                 label="Change profile color",
                 description="You must must be level 200 or higher to change profile color",
             )
@@ -61,8 +65,22 @@ class OptionsView(discord.ui.View):
                 data['options']['gamble_confirmation'] = True
                 await update_data(data)
                 await interaction.response.edit_message(view=OptionsView(interaction.user.id), embed=await make_options_embed(interaction.user.id))
-                
-            await update_data(data)
+    
+        elif select.values[0] == "Ping on level up":
+            data = await get_data(interaction.user.id)
+            
+            if data['options'].get('level_ping') is None:
+                data['options']['level_ping'] = True
+                await update_data(data)
+            
+            if data['options']['level_ping'] == True:
+                data['options']['level_ping'] = False
+                await update_data(data)
+                await interaction.response.edit_message(view=OptionsView(interaction.user.id), embed=await make_options_embed(interaction.user.id))
+            else:
+                data['options']['level_ping'] = True
+                await update_data(data)
+                await interaction.response.edit_message(view=OptionsView(interaction.user.id), embed=await make_options_embed(interaction.user.id))
             
         elif select.values[0] == "Change profile color":
             data = await get_data(interaction.user.id)
@@ -77,7 +95,6 @@ async def make_options_embed(user_id):
     data = await get_data(user_id)
     embed = discord.Embed(title="Options", color=0x6b4f37)
     
-    
     steal_ping = data['options']['steal_ping']
     if steal_ping == True:
         steal_ping = "Enabled"
@@ -90,8 +107,17 @@ async def make_options_embed(user_id):
     else:
         gamble_confirmation = "Disabled"
     
+    try:    
+        level_ping = "Enabled" if data['options']['level_ping'] == True else "Disabled"
+    except KeyError:
+        data['options']['level_ping'] = True
+        await update_data(data)
+        level_ping = "Enabled"
+
     embed.add_field(name="Ping when stolen from", value=f"{steal_ping}", inline=False)
     embed.add_field(name="Show gamble confirmation window", value=f"{gamble_confirmation}", inline=False)
+    embed.add_field(name="Ping on level up", value=f"{level_ping}", inline=False)
+    
     return embed
 
 class ProfileModal(discord.ui.Modal):

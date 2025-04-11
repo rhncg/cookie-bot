@@ -1,5 +1,6 @@
 import math
 from bot_instance import bot
+from src.funcs.data import get_data, update_data
 
 async def calculate_level(xp):
     return int(math.log(xp + 1) / math.log(1.05))
@@ -37,6 +38,12 @@ async def add_xp(data, amount, channel):
     new_level = await calculate_level(data['xp'])
     
     if new_level > old_level:
-        await channel.send(f"<@{data['user_id']}> leveled up to level {new_level}!", delete_after=20)
+        if data['options'].get('level_ping') is not None:
+            if data['options']['level_ping'] == True:
+                await channel.send(f"<@{data['user_id']}> leveled up to level {new_level}!", delete_after=5)
+        else:
+            data['options']['level_ping'] = True
+            await update_data(data)
+            await channel.send(f"<@{data['user_id']}> leveled up to level {new_level}!", delete_after=5)
         
     return data
