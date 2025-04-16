@@ -32,7 +32,7 @@ async def get_data(user_id):
         'last_active': row[5],
         'idle_upgrade_level': row[6],
         'last_daily': row[7],
-        'xp': row[8],
+        'xp': int(row[8]),
         'last_steal': row[9],
         'last_gamble': row[10],
         'daily_streak': row[11],
@@ -52,6 +52,7 @@ async def get_data(user_id):
 async def update_data(data):
     data['balance'] = str(data['balance'])
     data['total_cookies'] = str(data['total_cookies'])
+    data['xp'] = str(data['xp'])
     data['options'] = json.dumps(data['options'])
     
     if datetime.now().timestamp() - data['last_daily'] > 172800:
