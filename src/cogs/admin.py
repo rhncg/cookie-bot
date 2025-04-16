@@ -99,11 +99,19 @@ class Admin(discord.Cog):
             elif cmd == "announce":
                 channels = []
                 
+                if index is not None:
+                    try:
+                        channel = self.bot.get_channel(int(index))
+                        await channel.send(f"{value}")
+                        await ctx.respond(f"Sent in {channel.mention}", ephemeral=True)
+                    except Exception as e:
+                        await ctx.respond(f"error {e}", ephemeral=True)
+                        return
+                
                 for channel in active_channels.keys():
                     await channel.send(f"{value}")
                     channels.append(channel)
-                    
-                await ctx.respond(f"Sent in {len(channels)} channels", ephemeral=True)
+                    await ctx.respond(f"Sent in {len(channels)} channels", ephemeral=True)
             
             else:
                 await ctx.respond("Invalid command.", ephemeral=True)
