@@ -2,9 +2,6 @@ from datetime import datetime
 from src.funcs.balance import update_balance
 from src.funcs.db import get_db_connection
 import json
-import logging
-
-logging.basicConfig(level=logging.DEBUG)
 
 async def get_data(user_id):
     conn = await get_db_connection()
@@ -62,8 +59,6 @@ async def update_data(data):
     set_clause = ', '.join([f"{key} = ?" for key in data.keys()])
     values = list(data.values())
     values.append(user_id)
-    
-    logging.debug(f"Updating user {user_id} with values: {values}")
 
     conn = await get_db_connection()
     cursor = await conn.cursor()

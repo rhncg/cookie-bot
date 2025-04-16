@@ -34,8 +34,12 @@ class LeaderboardView(discord.ui.View):
             
         self.page = 1
 
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
+        
+        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+            rows = [(row[0], int(row[1])) for row in rows]
+            rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
@@ -69,8 +73,12 @@ class LeaderboardView(discord.ui.View):
         elif self.sort == "Streak":
             sort = "daily_streak"
         
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
+        
+        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+            rows = [(row[0], int(row[1])) for row in rows]
+            rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
@@ -101,7 +109,7 @@ class LeaderboardView(discord.ui.View):
         elif self.sort == "Streak":
             sort = "daily_streak"
         
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC")
         rows = await cursor.fetchall()
         
         count = 0
@@ -117,8 +125,12 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
+        
+        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+            rows = [(row[0], int(row[1])) for row in rows]
+            rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
@@ -149,9 +161,20 @@ class LeaderboardView(discord.ui.View):
             sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
+            
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC")
+        rows = await cursor.fetchall()
+            
+        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+            rows = [(row[0], int(row[1])) for row in rows]
+            rows = sorted(rows, key=lambda x: x[1], reverse=True)
+            
+        for i, row in enumerate(rows):
+            if row[0] == user_id:
+                position = i + 1
+                break        
         
-        await cursor.execute(f"SELECT COUNT(*) + 1 AS position FROM users WHERE {sort} > (SELECT {sort} FROM users WHERE user_id = {user_id})")
-        row = await cursor.fetchone()
+
         position = row[0] if row else None
         if position:
             self.page = (position - 1) // 10 + 1
@@ -159,7 +182,7 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
 
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
@@ -191,8 +214,12 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         
-        await cursor.execute(f"SELECT user_id, {sort} FROM users ORDER BY {sort} DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
+        
+        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+            rows = [(row[0], int(row[1])) for row in rows]
+            rows = sorted(rows, key=lambda x: x[1], reverse=True)
         
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
