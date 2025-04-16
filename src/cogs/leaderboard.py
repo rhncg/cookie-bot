@@ -4,6 +4,7 @@ from src.funcs.data import get_data
 from src.funcs.db import get_db_connection
 from src.views.leaderboard import LeaderboardView
 from src.funcs.background import log_active
+from funcs.globals import admins
 
 class Leaderboard(discord.Cog):
     def __init__(self, bot):
@@ -12,6 +13,10 @@ class Leaderboard(discord.Cog):
     @discord.command(description="View the leaderboard")
     async def leaderboard(self, ctx):
         await log_active(ctx)
+        
+        if ctx.author.id not in admins:
+            await ctx.respond("Sorry, this command is temporarily disabled while I fix a bug.")
+            return
         
         data = await get_data(ctx.author.id)
         await ctx.defer()
