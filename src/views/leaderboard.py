@@ -22,22 +22,23 @@ class LeaderboardView(discord.ui.View):
             self.sort = "Streak"
             button.label = f"Sort by Cookies"
 
-        conn = await get_db_connection()
-        cursor = await conn.cursor()
-        
-        if self.sort == "Level":
-            sort = "CAST(xp AS INTEGER)"
-        elif self.sort == "Cookies":
-            sort = "CAST(balance AS INTEGER)"
-        elif self.sort == "Streak":
-            sort = "daily_streak"
-            
         self.page = 1
 
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+        conn = await get_db_connection()
+        cursor = await conn.cursor()
+
+        # Map self.sort to database fields
+        sort_field = {
+            "Cookies": "balance",
+            "Level": "xp",
+            "Streak": "daily_streak"
+        }.get(self.sort, self.sort.lower())
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
-        
-        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+
+        # Convert to integers and sort in Python
+        if self.sort in ["Level", "Cookies", "Streak"]:
             rows = [(row[0], int(row[1])) for row in rows]
             rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
@@ -45,16 +46,15 @@ class LeaderboardView(discord.ui.View):
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
-            
+
             if self.sort == "Level":
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Cookies":
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Streak":
                 label = f"{numerize(row[1], 2)} days"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
+
+            embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
         
@@ -65,18 +65,19 @@ class LeaderboardView(discord.ui.View):
         
         conn = await get_db_connection()
         cursor = await conn.cursor()
-        
-        if self.sort == "Level":
-            sort = "CAST(xp AS INTEGER)"
-        elif self.sort == "Cookies":
-            sort = "CAST(balance AS INTEGER)"
-        elif self.sort == "Streak":
-            sort = "daily_streak"
-        
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+
+        # Map self.sort to database fields
+        sort_field = {
+            "Cookies": "balance",
+            "Level": "xp",
+            "Streak": "daily_streak"
+        }.get(self.sort, self.sort.lower())
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
-        
-        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+
+        # Convert to integers and sort in Python
+        if self.sort in ["Level", "Cookies", "Streak"]:
             rows = [(row[0], int(row[1])) for row in rows]
             rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
@@ -84,16 +85,15 @@ class LeaderboardView(discord.ui.View):
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
-            
+
             if self.sort == "Level":
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Cookies":
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Streak":
                 label = f"{numerize(row[1], 2)} days"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
+
+            embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
 
@@ -102,14 +102,14 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         
-        if self.sort == "Level":
-            sort = "CAST(xp AS INTEGER)"
-        elif self.sort == "Cookies":
-            sort = "CAST(balance AS INTEGER)"
-        elif self.sort == "Streak":
-            sort = "daily_streak"
-        
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC")
+        # Map self.sort to database fields
+        sort_field = {
+            "Cookies": "balance",
+            "Level": "xp",
+            "Streak": "daily_streak"
+        }.get(self.sort, self.sort.lower())
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users")
         rows = await cursor.fetchall()
         
         count = 0
@@ -124,11 +124,12 @@ class LeaderboardView(discord.ui.View):
         
         conn = await get_db_connection()
         cursor = await conn.cursor()
-        
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
-        
-        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+
+        # Convert to integers and sort in Python
+        if self.sort in ["Level", "Cookies", "Streak"]:
             rows = [(row[0], int(row[1])) for row in rows]
             rows = sorted(rows, key=lambda x: x[1], reverse=True)
 
@@ -136,16 +137,15 @@ class LeaderboardView(discord.ui.View):
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
-            
+
             if self.sort == "Level":
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Cookies":
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Streak":
                 label = f"{numerize(row[1], 2)} days"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
+
+            embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
         
@@ -154,18 +154,19 @@ class LeaderboardView(discord.ui.View):
         conn = await get_db_connection()
         cursor = await conn.cursor()
         user_id = interaction.user.id
-        
-        if self.sort == "Level":
-            sort = "CAST(xp AS INTEGER)"
-        elif self.sort == "Cookies":
-            sort = "CAST(balance AS INTEGER)"
-        elif self.sort == "Streak":
-            sort = "daily_streak"
-            
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC")
+
+        # Map self.sort to database fields
+        sort_field = {
+            "Cookies": "balance",
+            "Level": "xp",
+            "Streak": "daily_streak"
+        }.get(self.sort, self.sort.lower())
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users")
         rows = await cursor.fetchall()
-            
-        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+
+        # Convert to integers and sort in Python
+        if self.sort in ["Level", "Cookies", "Streak"]:
             rows = [(row[0], int(row[1])) for row in rows]
             rows = sorted(rows, key=lambda x: x[1], reverse=True)
             
@@ -181,43 +182,43 @@ class LeaderboardView(discord.ui.View):
             
         conn = await get_db_connection()
         cursor = await conn.cursor()
-        
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
 
         embed = discord.Embed(title=f"{self.sort} Leaderboard", color=0x6b4f37)
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
-            
+
             if self.sort == "Level":
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Cookies":
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Streak":
                 label = f"{numerize(row[1], 2)} days"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
+
+            embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
     
     @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
     async def refresh_callback(self, button, interaction):
-        if self.sort == "Level":
-            sort = "CAST(xp AS INTEGER)"
-        elif self.sort == "Cookies":
-            sort = "CAST(balance AS INTEGER)"
-        elif self.sort == "Streak":
-            sort = "daily_streak"
-        
         conn = await get_db_connection()
         cursor = await conn.cursor()
-        
-        await cursor.execute(f"SELECT user_id, {sort} FROM users DESC LIMIT 10 OFFSET {(self.page - 1) * 10}")
+
+        # Map self.sort to database fields
+        sort_field = {
+            "Cookies": "balance",
+            "Level": "xp",
+            "Streak": "daily_streak"
+        }.get(self.sort, self.sort.lower())
+
+        await cursor.execute(f"SELECT user_id, {sort_field} FROM users LIMIT 10 OFFSET {(self.page - 1) * 10}")
         rows = await cursor.fetchall()
-        
-        if self.sort == "Level" or self.sort == "Cookies" or self.sort == "Streak":
+
+        # Convert to integers and sort in Python
+        if self.sort in ["Level", "Cookies", "Streak"]:
             rows = [(row[0], int(row[1])) for row in rows]
             rows = sorted(rows, key=lambda x: x[1], reverse=True)
         
@@ -225,15 +226,14 @@ class LeaderboardView(discord.ui.View):
         for i, row in enumerate(rows):
             if row[1] == 0:
                 continue
-            
+
             if self.sort == "Level":
                 label = f"Level {await calculate_level(row[1])} - {numerize(row[1], 2)} xp"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Cookies":
                 label = f"{numerize(row[1], 2)} cookies"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
             elif self.sort == "Streak":
                 label = f"{numerize(row[1], 2)} days"
-                embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
+
+            embed.add_field(name="", value=f"{i + 1 + (self.page - 1) * 10}. <@{row[0]}> - {label}", inline=False)
 
         await interaction.response.edit_message(embed=embed, view=self)
