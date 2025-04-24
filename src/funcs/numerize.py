@@ -1,5 +1,5 @@
 def numerize(value, decimals=2):
-    suffixes = ['', 'K', 'M', 'B', 'T', 'Qu', 'Qi', 'Sx']
+    suffixes = ['', 'K', 'M', 'B', 'T', 'Qu', 'Qi', 'Sx', 'Sp', 'Oc', 'No', 'De']
     num = float(value)
     index = 0
     
