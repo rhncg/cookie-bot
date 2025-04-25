@@ -38,7 +38,10 @@ class Bake(discord.Cog):
             boost = 1
         
         s = "s" if oven_cap * boost != 1 else "" 
-        bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookie{s}**. They will be done {new_time}', delete_after=bake_speed+5)
+        
+        boost_display = f" (x{boost})" if boost != 1 else ""
+        
+        bake_message = await ctx.respond(f'You started baking **{numerize(oven_cap, 2)} cookie{s}**{boost_display}. They will be done {new_time}', delete_after=bake_speed+5)
 
         await update_data(data)
 
