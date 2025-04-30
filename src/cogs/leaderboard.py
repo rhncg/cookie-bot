@@ -15,7 +15,7 @@ class Leaderboard(discord.Cog):
         await log_active(ctx)
         
         if ctx.author.id not in admins:
-            await ctx.respond("Sorry, this command is temporarily disabled while I fix a bug.")
+            await ctx.respond("Sorry, this command is temporarily disabled while I fix a bug.\n(sorry for procrastinating, really busy right now)")
             return
         
         data = await get_data(ctx.author.id)
