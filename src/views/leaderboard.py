@@ -26,9 +26,9 @@ class LeaderboardView(discord.ui.View):
         cursor = await conn.cursor()
         
         if self.sort == "Level":
-            sort = "xp"
+            sort = "CAST(xp AS INTEGER)"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
             
@@ -63,9 +63,9 @@ class LeaderboardView(discord.ui.View):
         cursor = await conn.cursor()
         
         if self.sort == "Level":
-            sort = "xp"
+            sort = "CAST(xp AS INTEGER)"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -95,9 +95,9 @@ class LeaderboardView(discord.ui.View):
         cursor = await conn.cursor()
         
         if self.sort == "Level":
-            sort = "xp"
+            sort = "CAST(xp AS INTEGER)"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -144,9 +144,9 @@ class LeaderboardView(discord.ui.View):
         user_id = interaction.user.id
         
         if self.sort == "Level":
-            sort = "xp"
+            sort = "CAST(xp AS INTEGER)"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
@@ -182,9 +182,9 @@ class LeaderboardView(discord.ui.View):
     @discord.ui.button(label="", emoji="🔄", style=discord.ButtonStyle.secondary, row=1)
     async def refresh_callback(self, button, interaction):
         if self.sort == "Level":
-            sort = "xp"
+            sort = "CAST(xp AS INTEGER)"
         elif self.sort == "Cookies":
-            sort = "balance"
+            sort = "CAST(balance AS INTEGER)"
         elif self.sort == "Streak":
             sort = "daily_streak"
         
