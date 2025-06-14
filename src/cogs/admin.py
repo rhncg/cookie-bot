@@ -144,7 +144,8 @@ class Admin(discord.Cog):
                                                     f"Boost Time: {data['boost_time']}\n"
                                                     f"Boost Level: {data['boost_level']}\n"
                                                     f"Steal Ping: {data['steal_ping']}\n"
-                                                    f"Boost Speed: {data['boost_speed']}", inline=False)
+                                                    f"Boost Speed: {data['boost_speed']}\n"
+                                                    f"Options: {data['options']}", inline=False)
             embed.add_field(name="Baking Users", value=f"{baking_users}", inline=False)
             embed.add_field(name="Current Unix Time", value=f"{datetime.now().timestamp()}", inline=False)
             embed.add_field(name="GambleConfViewActive:", value=f"{gamble_users}", inline=False)
