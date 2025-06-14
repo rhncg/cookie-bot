@@ -34,10 +34,14 @@ async def try_steal(ctx, user):
             boost = data['boost_level'] * 0.25 + 1
         else:
             boost = 1
+            
+        # NOTE: data['steal_ping'] is deprecated, use data['options'].get('steal_ping', True) instead
+        
         if data['options'].get('steal_ping', True) == True:
             await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.mention}.")
         else:
             await ctx.respond(f"You stole {numerize(amount * boost, 2)} cookies from {user.display_name}.")
+            
     else:
         if data['steal_ping'] == True:
             await ctx.respond(f"You were caught! You failed to steal any cookies from {user.mention}.")
