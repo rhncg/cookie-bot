@@ -68,7 +68,7 @@ async def make_shop_embed(user_id, bot):
     next_boost_multiplier = await calculate_next_upgrade(data, 'boost_level', False)
     next_boost_speed = await calculate_next_upgrade(data, 'boost_speed', False)
     
-    boost_string = f"Upgrade time to {next_boost_speed} minutes for {boost_speed_upgrade_price} cookies" if next_boost_speed != "MAX" else "Boost time cannot be upgraded further"
+    boost_string = f"Upgrade duration to {next_boost_speed} minutes for {boost_speed_upgrade_price} cookies" if next_boost_speed != "MAX" else "Boost time cannot be upgraded further"
 
     embed.add_field(name="Boost", value=f"{active}\n"
                                         f"Current Multiplier: {data['boost_level'] * 0.25 + 1}x\n"
