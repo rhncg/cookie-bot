@@ -20,7 +20,7 @@ class Leaderboard(discord.Cog):
         cursor = await conn.cursor()
         
         query = '''
-        SELECT user_id, CAST(balance AS INTEGER) FROM users ORDER BY CAST(balance AS INTEGER) DESC LIMIT 10
+        SELECT user_id, CAST(balance AS REAL) FROM users ORDER BY CAST(balance AS REAL) DESC LIMIT 10
         '''
 
         await cursor.execute(query)

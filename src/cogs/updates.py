@@ -96,7 +96,8 @@ class Updates(discord.Cog):
                                                 "- Made better number numerizer\n"
                                                 "- Leaderboard Sort Rework\n"
                                                 "- You can now disable the gamble confirmation window\n"
-                                                "- You can now change your profile color in /options (must be level 200 or higher)", inline=False)
+                                                "- You can now change your profile color in /options (must be level 200 or higher)"
+                                                "- Fixed Leaderboard", inline=False)
         embed.add_field(name="Upcoming (in no particular order)", value="- Better Gambling\n"
                                                 "- Quests\n"
                                                 "- QOL stuff", inline=False)
