@@ -11,7 +11,7 @@ token = os.getenv('TOKEN')
 
 @bot.event
 async def on_ready():
-    await bot.change_presence(activity=discord.CustomActivity(name="cookies + gambling = profit"))
+    await bot.change_presence(activity=discord.CustomActivity(name="i love gambling"))
     print(f'Bot is ready (v{version})')
     try:
         conn = await get_db_connection()
