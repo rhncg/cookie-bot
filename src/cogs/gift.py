@@ -2,6 +2,7 @@ import discord
 from funcs.data import get_data
 from datetime import datetime
 from views.gift_confirmation import GiftConfirmationView
+from funcs.numerize import numerize
 
 class Gift(discord.Cog):
     def __init__(self, bot):
@@ -31,14 +32,14 @@ class Gift(discord.Cog):
         if gift_amount < 5:
             gift_amount = 5
 
-        if gift_amount > author_data['balance'] * 0.5:
-            gift_amount = round(author_data['balance'] * 0.5)
-            
+        if gift_amount > author_data['balance'] * 0.2:
+            gift_amount = round(author_data['balance'] * 0.2)
+
         confirmation_embed = discord.Embed(
             title="Gift Confirmation",
             color=0x6b4f37
         )
-        confirmation_embed.add_field(name=f"Are you sure you want to gift {user.display_name} {gift_amount} cookies?", value="", inline=False)
+        confirmation_embed.add_field(name=f"Are you sure you want to gift {user.display_name} {numerize(gift_amount)} cookies?", value="", inline=False)
         confirmation_embed.add_field(name="", value=f"This is {(gift_amount / author_data['balance'] * 100):.2f}% of your balance.")
         await ctx.respond(embed=confirmation_embed, view=GiftConfirmationView(ctx.author, user, gift_amount), ephemeral=True)
         
