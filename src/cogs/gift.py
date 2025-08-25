@@ -1,5 +1,5 @@
 import discord
-from funcs.data import get_data, update_balance
+from funcs.data import get_data
 from datetime import datetime
 from views.gift_confirmation import GiftConfirmationView
 
@@ -12,7 +12,7 @@ class Gift(discord.Cog):
     async def gift(self, ctx, user: discord.User):
         receiver_data = await get_data(user.id)
         author_data = await get_data(ctx.author.id)
-        last_gift = receiver_data['last_gift']
+        last_gift = author_data['last_gift']
         
         if user.id == ctx.author.id:
             await ctx.respond("You cannot gift yourself.")
@@ -39,7 +39,7 @@ class Gift(discord.Cog):
             color=0x6b4f37
         )
         confirmation_embed.add_field(name=f"Are you sure you want to gift {user.display_name} {gift_amount} cookies?", value="", inline=False)
-        confirmation_embed.add_field(name="", value=f"This is {gift_amount / author_data['balance'] * 100}% of your balance.")
+        confirmation_embed.add_field(name="", value=f"This is {(gift_amount / author_data['balance'] * 100):.2f}% of your balance.")
         await ctx.respond(embed=confirmation_embed, view=GiftConfirmationView(ctx.author, user, gift_amount), ephemeral=True)
         
 def setup(bot):
