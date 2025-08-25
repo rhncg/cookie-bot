@@ -36,7 +36,8 @@ async def on_ready():
             boost_level INTEGER DEFAULT 1,
             steal_ping BOOLEAN DEFAULT True,
             boost_speed INTEGER DEFAULT 10,
-            options TEXT DEFAULT '{"steal_ping": true, "gamble_confirmation": true, "profile_color": "default"}'
+            options TEXT DEFAULT '{"steal_ping": true, "gamble_confirmation": true, "profile_color": "default"}',
+            last_gift INTEGER DEFAULT 0
         )
         """)
         await cursor.execute("""
@@ -60,7 +61,8 @@ cogs_list = [
     'profile',
     'shop',
     'updates',
-    'quests'
+    'quests',
+    'gift'
 ]
 
 for cog in cogs_list:

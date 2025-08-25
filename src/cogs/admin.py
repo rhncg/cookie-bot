@@ -12,13 +12,6 @@ class Admin(discord.Cog):
     def __init__(self, bot):
         self.bot = bot
         
-    '''
-    Admin Commands:
-    - rsmsg
-    - balance++{amount} (only dev bot)
-    - drop (only dev bot)
-    '''
-        
     @discord.command(description="nuh uh")
     async def admin(self, ctx, cmd: str, user: discord.User = None, index: str = None, value = None):
         if ctx.author.id in admins:
