@@ -1,5 +1,5 @@
 import discord
-from src.views.options import OptionsView, make_options_embed
+from src.views.options_display import OptionsView, make_options_embed
 
 class Options(discord.Cog):
     def __init__(self, bot):

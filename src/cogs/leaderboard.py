@@ -2,7 +2,7 @@ import discord
 from funcs.numerize import numerize
 from src.funcs.data import get_data
 from src.funcs.db import get_db_connection
-from src.views.leaderboard import LeaderboardView
+from src.views.leaderboard_display import LeaderboardView
 from src.funcs.background import log_active
 from funcs.globals import admins
 

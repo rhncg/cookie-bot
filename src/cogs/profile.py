@@ -3,7 +3,7 @@ from funcs.numerize import numerize
 from datetime import datetime
 from src.funcs.data import get_data
 from src.funcs.level import get_xp_bar_data, calculate_level
-from src.funcs.profile import get_profile
+from src.funcs.profile_embed import get_profile
 from src.funcs.background import log_active
 
 class Profile(discord.Cog):

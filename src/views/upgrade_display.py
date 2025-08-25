@@ -3,7 +3,7 @@ import asyncio
 from datetime import datetime
 from src.funcs.data import get_data, update_data, update_balance
 from src.funcs.globals import bake_speed_upgrades
-from src.funcs.upgrade_calc import calculate_next_upgrade_price, calculate_next_upgrade, make_shop_embed
+from src.funcs.upgrade_logic import calculate_next_upgrade_price, calculate_next_upgrade, make_shop_embed
 from src.bot_instance import bot
 from src.funcs.numerize import numerize
 from funcs.level import add_xp
